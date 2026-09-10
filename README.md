@@ -1,7 +1,7 @@
 <div align="center">
   
   <!-- Add your Einstein logo or a custom banner image here -->
-  <img src="app/src/main/res/drawable/ic_iras_logo.png" alt="Iras Course Planner Logo" width="120" />
+  <img src="app/src/main/res/drawable-nodpi/ic_iras_logo.png" alt="Iras Course Planner Logo" width="120" />
 
   # 🎓 Iras Course Planner
 
