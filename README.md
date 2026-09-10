@@ -81,16 +81,3 @@ Built with modern Android development practices to ensure performance and scalab
 * **Architecture:** Strict adherence to **Clean Architecture** and **MVVM** principles.
 
 ---
-
-## 🚀 Getting Started
-
-Want to run the app locally or contribute? Follow these steps:
-
-### Prerequisites
-* Android Studio (Jellyfish or newer recommended)
-* Android SDK 34+
-
-### Installation
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/iras-course-planner.git
