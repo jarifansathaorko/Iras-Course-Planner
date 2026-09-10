@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -90,8 +91,8 @@ fun WeeklyTimetableGrid(
     val startDayMinutes = startHour * 60
     val endDayMinutes = endHour * 60
 
-    val hourSlotHeightDp = 48.dp
-        val totalHeightDp = ((endDayMinutes - startDayMinutes) / 60f * hourSlotHeightDp.value).dp
+    val hourSlotHeightDp = 50.dp
+        val totalHeightDp = ((((endDayMinutes - startDayMinutes) / 60f) + 1) * hourSlotHeightDp.value).dp
     val mapMinutesToY = { minutes: Int ->
         ((minutes - startDayMinutes) / 60f) * hourSlotHeightDp.value
     }
@@ -160,13 +161,13 @@ fun WeeklyTimetableGrid(
                     }
                 }
                 
-                val timeColWidth = 46.dp
-                val dayColWidth = (availableWidth - timeColWidth - 16.dp) / displayDays.size.coerceAtLeast(1)
+                val timeColWidth = 40.dp
+                val dayColWidth = (availableWidth - timeColWidth - 8.dp) / displayDays.size.coerceAtLeast(1)
                 val totalGridWidth = timeColWidth + (dayColWidth * displayDays.size)
                 
                 Column(
                     modifier = Modifier
-                        .padding(8.dp)
+                        .padding(4.dp)
                         .width(totalGridWidth)
                 ) {
                     // Days Header Row
@@ -215,7 +216,6 @@ fun WeeklyTimetableGrid(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(max = 480.dp) // Limits max height, but wraps compact if smaller
                             .verticalScroll(verticalScrollState)
                     ) {
                         // Grid background
@@ -240,6 +240,7 @@ fun WeeklyTimetableGrid(
                             for (hour in startHour..endHour) {
                                 val hMin = hour * 60
                                 val yOffset = mapMinutesToY(hMin).dp
+
                                 // Horizontal guideline
                                 Box(
                                     modifier = Modifier
@@ -252,18 +253,17 @@ fun WeeklyTimetableGrid(
                                 Box(
                                     modifier = Modifier
                                         .width(timeColWidth)
-                                        .offset(y = yOffset)
-                                        .padding(end = 4.dp),
-                                    contentAlignment = Alignment.TopEnd
+                                        .offset(y = yOffset - 7.dp)
+                                        .padding(end = 6.dp),
+                                    contentAlignment = Alignment.CenterEnd
                                 ) {
                                     val amPm = if (hour >= 12) "PM" else "AM"
                                     val h12 = if (hour > 12) hour - 12 else if (hour == 0) 12 else hour
                                     Text(
                                         text = "$h12 $amPm",
                                         style = MaterialTheme.typography.labelSmall,
-                                        fontSize = 10.sp,
-                                        color = MaterialTheme.colorScheme.outline,
-                                        modifier = Modifier.offset(y = (-6).dp)
+                                        fontSize = 8.sp,
+                                        color = MaterialTheme.colorScheme.outline
                                     )
                                 }
                             }
@@ -292,7 +292,7 @@ fun WeeklyTimetableGrid(
                                             .offset(x = leftOffsetDp.dp, y = topOffsetDp.dp)
                                             .width(blockWidthDp.dp)
                                             .height(blockHeightDp.dp)
-                                            .padding(horizontal = 2.dp, vertical = 1.dp)
+                                            .padding(horizontal = 1.dp, vertical = 1.dp)
                                             .clip(RoundedCornerShape(6.dp))
                                             .background(blockColor)
                                             .clickable {
@@ -300,51 +300,35 @@ fun WeeklyTimetableGrid(
                                                 onCourseClick?.invoke(course)
                                             }
                                     ) {
-                                        Column(modifier = Modifier.fillMaxSize()) {
-                                            // Top dark translucent band for time
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .background(Color.Black.copy(alpha = 0.2f))
-                                                    .padding(horizontal = 4.dp, vertical = 3.dp),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Text(
-                                                    text = parsed.timeRange12Hr.replace(" AM", "").replace(" PM", ""),
-                                                    color = Color.White,
-                                                    fontSize = 9.sp,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                            }
-                                            
-                                            // Course info
-                                            Column(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .padding(horizontal = 4.dp, vertical = 4.dp),
-                                                verticalArrangement = Arrangement.Center,
-                                                horizontalAlignment = Alignment.CenterHorizontally
-                                            ) {
-                                                Text(
-                                                    text = course.courseCode,
-                                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),
-                                                    color = Color.White,
-                                                    fontSize = 12.sp,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                                Spacer(modifier = Modifier.height(1.dp))
-                                                Text(
-                                                    text = "Sec ${course.section}",
-                                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
-                                                    color = Color.White.copy(alpha = 0.9f),
-                                                    fontSize = 10.sp,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                            }
+                                        Text(
+                                            text = parsed.timeRange12Hr.replace(" AM", "").replace(" PM", ""),
+                                            color = Color.White,
+                                            fontSize = 6.5.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 1,
+                                            modifier = Modifier
+                                                .align(Alignment.TopCenter)
+                                                .padding(top = 2.dp)
+                                        )
+                                        
+                                        Column(
+                                            modifier = Modifier.align(Alignment.Center).padding(top = 4.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                text = course.courseCode,
+                                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),
+                                                color = Color.White,
+                                                fontSize = 9.5.sp,
+                                                maxLines = 1
+                                            )
+                                            Text(
+                                                text = "Sec ${course.section}",
+                                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                                                color = Color.White.copy(alpha = 0.9f),
+                                                fontSize = 7.sp,
+                                                maxLines = 1
+                                            )
                                         }
                                     }
                                 }
