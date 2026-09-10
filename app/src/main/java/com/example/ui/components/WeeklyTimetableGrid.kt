@@ -90,7 +90,7 @@ fun WeeklyTimetableGrid(
     val startDayMinutes = startHour * 60
     val endDayMinutes = endHour * 60
 
-    val hourSlotHeightDp = 56.dp
+    val hourSlotHeightDp = 80.dp
     val freeTimeBlockHeightDp = 42f
 
     val mergedIntervals = remember(parsedCourses) {
@@ -195,9 +195,11 @@ fun WeeklyTimetableGrid(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
         ) {
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 val availableWidth = maxWidth
                 
                 // Smart active days filtering
@@ -222,6 +224,7 @@ fun WeeklyTimetableGrid(
                     modifier = Modifier
                         .padding(8.dp)
                         .width(totalGridWidth)
+                        .fillMaxHeight()
                 ) {
                     // Days Header Row
                     Row(
@@ -269,7 +272,7 @@ fun WeeklyTimetableGrid(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(max = 480.dp) // Limits max height, but wraps compact if smaller
+                            .weight(1f)
                             .verticalScroll(verticalScrollState)
                     ) {
                         // Grid background
@@ -388,13 +391,13 @@ fun WeeklyTimetableGrid(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .background(Color.Black.copy(alpha = 0.2f))
-                                                    .padding(horizontal = 4.dp, vertical = 3.dp),
+                                                    .padding(horizontal = 2.dp, vertical = 3.dp),
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Text(
                                                     text = parsed.timeRange12Hr.replace(" AM", "").replace(" PM", ""),
                                                     color = Color.White,
-                                                    fontSize = 9.sp,
+                                                    fontSize = 8.sp,
                                                     fontWeight = FontWeight.SemiBold,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
@@ -405,7 +408,7 @@ fun WeeklyTimetableGrid(
                                             Column(
                                                 modifier = Modifier
                                                     .fillMaxSize()
-                                                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                                                    .padding(horizontal = 2.dp, vertical = 2.dp),
                                                 verticalArrangement = Arrangement.Center,
                                                 horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
@@ -413,18 +416,20 @@ fun WeeklyTimetableGrid(
                                                     text = course.courseCode,
                                                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),
                                                     color = Color.White,
-                                                    fontSize = 12.sp,
+                                                    fontSize = 10.sp,
                                                     maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    textAlign = TextAlign.Center
                                                 )
                                                 Spacer(modifier = Modifier.height(1.dp))
                                                 Text(
                                                     text = "Sec ${course.section}",
                                                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
                                                     color = Color.White.copy(alpha = 0.9f),
-                                                    fontSize = 10.sp,
+                                                    fontSize = 9.sp,
                                                     maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    textAlign = TextAlign.Center
                                                 )
                                             }
                                         }
