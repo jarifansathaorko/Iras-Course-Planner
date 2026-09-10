@@ -5,7 +5,7 @@ plugins {
   alias(libs.plugins.google.devtools.ksp)
   alias(libs.plugins.roborazzi)
   alias(libs.plugins.secrets)
-  // alias(libs.plugins.google.services)
+  alias(libs.plugins.google.services)
 }
 
 android {
@@ -13,7 +13,7 @@ android {
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.courseselect.vzqwka"
+    applicationId = "com.courseplanner.hexton"
     minSdk = 24
     targetSdk = 36
     versionCode = 1
@@ -76,7 +76,7 @@ secrets {
 // This makes it easy to add them back in the future if needed.
 dependencies {
   implementation(platform(libs.androidx.compose.bom))
-  // implementation(platform(libs.firebase.bom))
+  implementation(platform(libs.firebase.bom))
   // implementation(libs.accompanist.permissions)
   implementation(libs.androidx.activity.compose)
   // implementation(libs.androidx.camera.camera2)
@@ -101,7 +101,7 @@ dependencies {
   // implementation(libs.converter.moshi)
   // implementation(libs.firebase.ai)
   // Uncomment to use Firestore:
-  // implementation(libs.firebase.firestore)
+  implementation(libs.firebase.firestore)
 
   // Uncomment ALL FOUR of the following dependencies together to use Firebase Auth and Google
   // Sign-In via Credential Manager:

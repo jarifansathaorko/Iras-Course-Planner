@@ -37,6 +37,7 @@ import com.example.domain.ConflictResult
 import com.example.ui.components.ChangeSectionDialog
 import com.example.ui.components.ConflictAlertDialog
 import com.example.ui.components.ConfirmScheduleDialog
+import com.example.ui.components.UpdateDataDialog
 import com.example.ui.screens.CourseCatalogScreen
 import com.example.ui.screens.SavedPlansScreen
 import com.example.ui.screens.SelectedCoursesScreen
@@ -64,6 +65,7 @@ fun CourseSelectApp(
     val pendingConflict by viewModel.pendingConflict.collectAsState()
     val courseToChange by viewModel.courseToChange.collectAsState()
     val showSavePlanDialog by viewModel.showSavePlanDialog.collectAsState()
+    val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
 
     val activePlanTab by viewModel.activePlanTab.collectAsState()
     val allPlanMeta by viewModel.allPlanMeta.collectAsState()
@@ -287,5 +289,12 @@ fun CourseSelectApp(
                 }
             )
         }
+
+        // Update Data Dialog
+        UpdateDataDialog(
+            showDialog = showUpdateDialog,
+            onDismiss = viewModel::dismissUpdateDialog,
+            onConfirm = viewModel::confirmUpdate
+        )
     }
 }

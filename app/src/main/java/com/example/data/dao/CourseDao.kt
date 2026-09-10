@@ -27,6 +27,9 @@ interface CourseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(courses: List<CourseEntity>)
 
+    @Query("DELETE FROM courses")
+    suspend fun deleteAllCourses()
+
     @Query("SELECT DISTINCT courseCode FROM courses ORDER BY courseCode ASC")
     fun getAllCourseCodes(): Flow<List<String>>
 }

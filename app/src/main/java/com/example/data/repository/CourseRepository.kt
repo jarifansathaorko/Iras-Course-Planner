@@ -30,15 +30,17 @@ class CourseRepository(
     }
 
     suspend fun ensureDataInitialized() = withContext(Dispatchers.IO) {
-        courseDao.insertAll(CourseDataCatalog.initialCourses)
-        for (p in 1..4) {
-            planDao.insertPlanMeta(
-                PlanMetaEntity(
-                    planNumber = p,
-                    planName = "Plan $p",
-                    savedAt = System.currentTimeMillis()
+        if (courseDao.getCourseCount() == 0) {
+            courseDao.insertAll(CourseDataCatalog.initialCourses)
+            for (p in 1..4) {
+                planDao.insertPlanMeta(
+                    PlanMetaEntity(
+                        planNumber = p,
+                        planName = "Plan $p",
+                        savedAt = System.currentTimeMillis()
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -73,5 +75,10 @@ class CourseRepository(
     suspend fun loadPlanIntoSelection(planNumber: Int) = withContext(Dispatchers.IO) {
         val planCourses = planDao.getPlanCoursesSync(planNumber)
         selectedCourseDao.setSelectedCourses(planCourses.map { it.id })
+    }
+
+    suspend fun updateEntireCatalog(newCourses: List<CourseEntity>) = withContext(Dispatchers.IO) {
+        courseDao.deleteAllCourses()
+        courseDao.insertAll(newCourses)
     }
 }
