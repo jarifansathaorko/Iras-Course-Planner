@@ -90,65 +90,11 @@ fun WeeklyTimetableGrid(
     val startDayMinutes = startHour * 60
     val endDayMinutes = endHour * 60
 
-    val hourSlotHeightDp = 80.dp
-    val freeTimeBlockHeightDp = 42f
-
-    val mergedIntervals = remember(parsedCourses) {
-        val list = mutableListOf<IntRange>()
-        parsedCourses.map { it.startMinutes..it.endMinutes }.sortedBy { it.first }.forEach { interval ->
-            if (list.isEmpty()) {
-                list.add(interval)
-            } else {
-                val last = list.last()
-                if (interval.first <= last.last) {
-                    list[list.size - 1] = last.first..maxOf(last.last, interval.last)
-                } else {
-                    list.add(interval)
-                }
-            }
-        }
-        list
+    val hourSlotHeightDp = 48.dp
+        val totalHeightDp = ((endDayMinutes - startDayMinutes) / 60f * hourSlotHeightDp.value).dp
+    val mapMinutesToY = { minutes: Int ->
+        ((minutes - startDayMinutes) / 60f) * hourSlotHeightDp.value
     }
-
-    val freeGaps = remember(mergedIntervals, startDayMinutes) {
-        val gaps = mutableListOf<IntRange>()
-        var currentMax = startDayMinutes
-        for (interval in mergedIntervals) {
-            if (interval.first - currentMax >= 150) { // 2.5 hours threshold to be safe
-                gaps.add(currentMax until interval.first)
-            }
-            currentMax = maxOf(currentMax, interval.last)
-        }
-        gaps
-    }
-
-    val mapMinutesToY = remember(freeGaps, startDayMinutes, hourSlotHeightDp.value) {
-        { minutes: Int ->
-            var y = 0f
-            var currentMin = startDayMinutes
-            for (gap in freeGaps) {
-                if (minutes <= gap.first) {
-                    y += (minutes - currentMin) / 60f * hourSlotHeightDp.value
-                    currentMin = minutes
-                    break
-                }
-                y += (gap.first - currentMin) / 60f * hourSlotHeightDp.value
-                if (minutes <= gap.last) {
-                    y += (minutes - gap.first) / (gap.last - gap.first).toFloat() * freeTimeBlockHeightDp
-                    currentMin = minutes
-                    break
-                }
-                y += freeTimeBlockHeightDp
-                currentMin = gap.last
-            }
-            if (currentMin < minutes) {
-                y += (minutes - currentMin) / 60f * hourSlotHeightDp.value
-            }
-            y
-        }
-    }
-
-    val totalHeightDp = mapMinutesToY(endDayMinutes).dp
 
     Column(modifier = modifier.fillMaxWidth()) {
         // Selected Course Preview Banner if user tapped on a class
@@ -195,9 +141,7 @@ fun WeeklyTimetableGrid(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+            modifier = Modifier.fillMaxWidth()
         ) {
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 val availableWidth = maxWidth
@@ -224,7 +168,6 @@ fun WeeklyTimetableGrid(
                     modifier = Modifier
                         .padding(8.dp)
                         .width(totalGridWidth)
-                        .fillMaxHeight()
                 ) {
                     // Days Header Row
                     Row(
@@ -272,7 +215,7 @@ fun WeeklyTimetableGrid(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f)
+                            .heightIn(max = 480.dp) // Limits max height, but wraps compact if smaller
                             .verticalScroll(verticalScrollState)
                     ) {
                         // Grid background
@@ -296,59 +239,31 @@ fun WeeklyTimetableGrid(
                             // 2. Horizontal Hour Guidelines & Labels
                             for (hour in startHour..endHour) {
                                 val hMin = hour * 60
-                                val inGap = freeGaps.any { gap -> hMin > gap.first && hMin < gap.last }
-                                if (!inGap) {
-                                    val yOffset = mapMinutesToY(hMin).dp
-                                    // Horizontal guideline
-                                    Box(
-                                        modifier = Modifier
-                                            .offset(x = timeColWidth, y = yOffset)
-                                            .width(totalGridWidth - timeColWidth)
-                                            .height(0.5.dp)
-                                            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
-                                    )
-                                    // Time Label
-                                    Box(
-                                        modifier = Modifier
-                                            .width(timeColWidth)
-                                            .offset(y = yOffset)
-                                            .padding(end = 4.dp),
-                                        contentAlignment = Alignment.TopEnd
-                                    ) {
-                                        val amPm = if (hour >= 12) "PM" else "AM"
-                                        val h12 = if (hour > 12) hour - 12 else if (hour == 0) 12 else hour
-                                        Text(
-                                            text = "$h12 $amPm",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontSize = 10.sp,
-                                            color = MaterialTheme.colorScheme.outline,
-                                            modifier = Modifier.offset(y = (-6).dp)
-                                        )
-                                    }
-                                }
-                            }
-
-                            // 3. Free Time Blocks
-                            for (gap in freeGaps) {
-                                val topOffsetDp = mapMinutesToY(gap.first).dp
+                                val yOffset = mapMinutesToY(hMin).dp
+                                // Horizontal guideline
                                 Box(
                                     modifier = Modifier
-                                        .offset(x = timeColWidth + 1.dp, y = topOffsetDp)
-                                        .width(totalGridWidth - timeColWidth - 2.dp)
-                                        .height(freeTimeBlockHeightDp.dp)
-                                        .padding(vertical = 1.dp)
-                                        .clip(RoundedCornerShape(4.dp))
-                                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
-                                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(4.dp)),
-                                    contentAlignment = Alignment.Center
+                                        .offset(x = timeColWidth, y = yOffset)
+                                        .width(totalGridWidth - timeColWidth)
+                                        .height(0.5.dp)
+                                        .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
+                                )
+                                // Time Label
+                                Box(
+                                    modifier = Modifier
+                                        .width(timeColWidth)
+                                        .offset(y = yOffset)
+                                        .padding(end = 4.dp),
+                                    contentAlignment = Alignment.TopEnd
                                 ) {
-                                    val startParsed = ScheduleHelper.formatMinutesTo12Hr(gap.first)
-                                    val endParsed = ScheduleHelper.formatMinutesTo12Hr(gap.last)
+                                    val amPm = if (hour >= 12) "PM" else "AM"
+                                    val h12 = if (hour > 12) hour - 12 else if (hour == 0) 12 else hour
                                     Text(
-                                        text = "FREE TIME • $startParsed - $endParsed",
-                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                                        letterSpacing = 0.5.sp
+                                        text = "$h12 $amPm",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontSize = 10.sp,
+                                        color = MaterialTheme.colorScheme.outline,
+                                        modifier = Modifier.offset(y = (-6).dp)
                                     )
                                 }
                             }
@@ -391,13 +306,13 @@ fun WeeklyTimetableGrid(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .background(Color.Black.copy(alpha = 0.2f))
-                                                    .padding(horizontal = 2.dp, vertical = 3.dp),
+                                                    .padding(horizontal = 4.dp, vertical = 3.dp),
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Text(
                                                     text = parsed.timeRange12Hr.replace(" AM", "").replace(" PM", ""),
                                                     color = Color.White,
-                                                    fontSize = 8.sp,
+                                                    fontSize = 9.sp,
                                                     fontWeight = FontWeight.SemiBold,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
@@ -408,7 +323,7 @@ fun WeeklyTimetableGrid(
                                             Column(
                                                 modifier = Modifier
                                                     .fillMaxSize()
-                                                    .padding(horizontal = 2.dp, vertical = 2.dp),
+                                                    .padding(horizontal = 4.dp, vertical = 4.dp),
                                                 verticalArrangement = Arrangement.Center,
                                                 horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
@@ -416,20 +331,18 @@ fun WeeklyTimetableGrid(
                                                     text = course.courseCode,
                                                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),
                                                     color = Color.White,
-                                                    fontSize = 10.sp,
+                                                    fontSize = 12.sp,
                                                     maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis,
-                                                    textAlign = TextAlign.Center
+                                                    overflow = TextOverflow.Ellipsis
                                                 )
                                                 Spacer(modifier = Modifier.height(1.dp))
                                                 Text(
                                                     text = "Sec ${course.section}",
                                                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
                                                     color = Color.White.copy(alpha = 0.9f),
-                                                    fontSize = 9.sp,
+                                                    fontSize = 10.sp,
                                                     maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis,
-                                                    textAlign = TextAlign.Center
+                                                    overflow = TextOverflow.Ellipsis
                                                 )
                                             }
                                         }
