@@ -36,27 +36,50 @@ Building a university schedule shouldn't be a puzzle. Iras Course Planner uses a
 
 ---
 
-## 📸 Sneak Peek
+## 📸 App Previews
 
-*Replace these placeholder image paths with your actual screenshots in the `.github/assets` or `public` folder.*
+Create a `previews` folder in your repository and upload your screenshots there to display them below.
 
+### 📱 Exploring & Planning
 <div align="center">
   <table>
     <tr>
       <td align="center">
-        <img src="https://via.placeholder.com/250x500.png?text=Course+Catalog" width="220"/>
+        <img src="previews/catalog.jpg" width="220"/>
         <br /><b>Smart Catalog</b>
       </td>
       <td align="center">
-        <img src="https://via.placeholder.com/250x500.png?text=Weekly+Grid" width="220"/>
-        <br /><b>Weekly Grid</b>
+        <img src="previews/search-conflict.jpg" width="220"/>
+        <br /><b>Conflict Detection</b>
       </td>
       <td align="center">
-        <img src="https://via.placeholder.com/250x500.png?text=Exported+PNG" width="220"/>
-        <br /><b>Exported Schedule</b>
+        <img src="previews/selected-list.jpg" width="220"/>
+        <br /><b>Selected Courses</b>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="previews/save-dialog.jpg" width="220"/>
+        <br /><b>Save to Plans</b>
+      </td>
+      <td align="center">
+        <img src="previews/saved-plans.jpg" width="220"/>
+        <br /><b>Saved Semester Plans</b>
+      </td>
+      <td align="center">
+        <!-- Empty cell to balance the 3-column table -->
       </td>
     </tr>
   </table>
+</div>
+
+### 🖼️ Exported Timetables (High-Res)
+<div align="center">
+  <img src="previews/exported-timetable.jpg" width="450"/>
+  <br /><b>Beautiful Weekly Timetables</b>
+  <br /><br />
+  <img src="previews/exported-details.jpg" width="450"/>
+  <br /><b>Clean Course Details Export</b>
 </div>
 
 ---
