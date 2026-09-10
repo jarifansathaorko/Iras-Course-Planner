@@ -78,14 +78,14 @@ fun WeeklyTimetableGrid(
         Day.SATURDAY
     )
 
-    val parsedCourses = remember(courses) { courses.map { ScheduleHelper.parse(it.timeSlot) }.filter { it.startMinutes < it.endMinutes } }
+    val courseAndParsed = remember(courses) { courses.map { it to ScheduleHelper.parse(it.timeSlot) }.filter { it.second.startMinutes < it.second.endMinutes } }
     
-    val startHour = remember(parsedCourses) {
-        if (parsedCourses.isEmpty()) 8 else (parsedCourses.minOf { it.startMinutes } / 60).coerceIn(6, 20)
+    val startHour = remember(courseAndParsed) {
+        if (courseAndParsed.isEmpty()) 8 else (courseAndParsed.minOf { it.second.startMinutes } / 60).coerceIn(6, 20)
     }
-    val endHour = remember(parsedCourses) {
-        if (parsedCourses.isEmpty()) 17 else {
-            val maxMins = parsedCourses.maxOf { it.endMinutes }
+    val endHour = remember(courseAndParsed) {
+        if (courseAndParsed.isEmpty()) 17 else {
+            val maxMins = courseAndParsed.maxOf { it.second.endMinutes }
             ((maxMins + 59) / 60).coerceIn(9, 22)
         }
     }
@@ -95,8 +95,8 @@ fun WeeklyTimetableGrid(
 
     val hourSlotHeightDp = 50.dp
 
-    val gaps = remember(parsedCourses) {
-        val intervals = parsedCourses.map { it.startMinutes to it.endMinutes }.sortedBy { it.first }
+    val gaps = remember(courseAndParsed) {
+        val intervals = courseAndParsed.map { it.second.startMinutes to it.second.endMinutes }.sortedBy { it.first }
         val activeBlocks = mutableListOf<Pair<Int, Int>>()
         for (interval in intervals) {
             if (activeBlocks.isEmpty()) {
@@ -356,9 +356,9 @@ fun WeeklyTimetableGrid(
                         }
 
                         // Render Course Class Blocks on Top
-                        for ((cIndex, course) in courses.withIndex()) {
-                            val parsed = ScheduleHelper.parse(course.timeSlot)
-                            if (parsed.days.isEmpty() || parsed.startMinutes >= parsed.endMinutes) continue
+                        for ((cIndex, pair) in courseAndParsed.withIndex()) {
+                            val course = pair.first
+                            val parsed = pair.second
 
                             val blockColor = BLOCK_COLORS[cIndex % BLOCK_COLORS.size]
 
