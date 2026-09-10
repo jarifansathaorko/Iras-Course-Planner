@@ -498,15 +498,12 @@ fun CourseCatalogCard(
     
     val cardBorderColor = when {
         isSelected -> MaterialTheme.colorScheme.primary
-        isSameCourseConflict -> MaterialTheme.colorScheme.outlineVariant
-        conflict != null -> MaterialTheme.colorScheme.error
-        else -> MaterialTheme.colorScheme.outlineVariant
+        conflict != null -> MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
+        else -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
     }
 
     val cardBgColor = when {
-        isSelected -> MaterialTheme.colorScheme.primaryContainer
-        isSameCourseConflict -> MaterialTheme.colorScheme.surface
-        conflict != null -> MaterialTheme.colorScheme.errorContainer
+        isSelected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
         else -> MaterialTheme.colorScheme.surface
     }
 

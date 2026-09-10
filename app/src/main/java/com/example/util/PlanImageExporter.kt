@@ -144,7 +144,7 @@ object PlanImageExporter {
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         canvas.drawText("IRAS COURSE PLANNER", headerRect.left + 48f, headerRect.top + 80f, paint)
         
-        paint.color = Color.WHITE
+        paint.color = android.graphics.Color.WHITE
         paint.textSize = 58f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         val titleStr = if (filterText.length > 30) filterText.take(28) + "..." else filterText
@@ -178,7 +178,7 @@ object PlanImageExporter {
             (width - padding).toFloat(),
             currentY + tableHeight
         )
-        paint.color = Color.WHITE
+        paint.color = android.graphics.Color.WHITE
         canvas.drawRoundRect(tableCardRect, 32f, 32f, paint)
         
         drawCourseTable(canvas, tableCardRect, displayCourses, cardHeaderHeight, showEnrollment = true)
@@ -214,7 +214,15 @@ object PlanImageExporter {
     ): Bitmap {
         val width = 1440
         val baseHeaderHeight = 320
-        val gridHeight = 780
+        
+        val parsedCourses = courses.map { com.example.domain.ScheduleHelper.parse(it.timeSlot) }.filter { it.startMinutes < it.endMinutes }
+        val tmpStartHour = if (parsedCourses.isEmpty()) 8 else (parsedCourses.minOf { it.startMinutes } / 60).coerceIn(6, 20)
+        val tmpEndHour = if (parsedCourses.isEmpty()) 17 else {
+            val maxMins = parsedCourses.maxOf { it.endMinutes }
+            ((maxMins + 59) / 60).coerceIn(9, 22)
+        }
+        val gridHeight = 120 + ((tmpEndHour - tmpStartHour) * 110)
+
         val cardHeaderHeight = 90
         val courseItemHeight = 136
         val courseItemSpacing = 14
@@ -250,7 +258,7 @@ object PlanImageExporter {
         canvas.drawText("IRAS COURSE PLANNER", headerRect.left + 48f, headerRect.top + 80f, paint)
 
         // Plan Name
-        paint.color = Color.WHITE
+        paint.color = android.graphics.Color.WHITE
         paint.textSize = 64f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         canvas.drawText(planName, headerRect.left + 48f, headerRect.top + 165f, paint)
@@ -272,7 +280,7 @@ object PlanImageExporter {
         val badgeRect = RectF(headerRect.right - 280f, headerRect.top + 60f, headerRect.right - 48f, headerRect.top + 130f)
         paint.color = 0xFFD97706.toInt()
         canvas.drawRoundRect(badgeRect, 20f, 20f, paint)
-        paint.color = Color.WHITE
+        paint.color = android.graphics.Color.WHITE
         paint.textSize = 30f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         paint.textAlign = Paint.Align.CENTER
@@ -297,7 +305,7 @@ object PlanImageExporter {
             (width - padding).toFloat(),
             currentY + gridHeight
         )
-        paint.color = Color.WHITE
+        paint.color = android.graphics.Color.WHITE
         canvas.drawRoundRect(gridCardRect, 32f, 32f, paint)
 
         // Grid Title
@@ -317,7 +325,7 @@ object PlanImageExporter {
             (width - padding).toFloat(),
             currentY + tableHeight
         )
-        paint.color = Color.WHITE
+        paint.color = android.graphics.Color.WHITE
         canvas.drawRoundRect(tableCardRect, 32f, 32f, paint)
 
         // Draw Table Header & Rows
@@ -346,24 +354,28 @@ object PlanImageExporter {
         val matrixTop = rect.top + 90f
         val matrixBottom = rect.bottom - 30f
 
-        // Days: Sun (A), Mon (M), Tue (T), Wed (W), Thu (R), Sat (S)
-        val displayDays = listOf(
-            Day.SUNDAY,
-            Day.MONDAY,
-            Day.TUESDAY,
-            Day.WEDNESDAY,
-            Day.THURSDAY,
-            Day.SATURDAY
-        )
+        val activeDays = courses.flatMap { com.example.domain.ScheduleHelper.parse(it.timeSlot).days }.toSet()
+        val displayDays = if (activeDays.isEmpty()) {
+            listOf(Day.SUNDAY, Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY)
+        } else {
+            listOf(Day.SUNDAY, Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY, Day.SATURDAY)
+                .filter { it in activeDays }
+        }
 
         val timeColWidth = 140f
-        val dayColWidth = (matrixRight - matrixLeft - timeColWidth) / displayDays.size
+        val dayColWidth = (matrixRight - matrixLeft - timeColWidth) / displayDays.size.coerceAtLeast(1)
         val dayHeaderHeight = 54f
         val gridContentTop = matrixTop + dayHeaderHeight
 
-        // Time limits: 08:00 (480 mins) to 21:30 (1290 mins)
-        val startDayMinutes = 8 * 60      // 480
-        val endDayMinutes = 21 * 60 + 30  // 1290
+        val parsedCourses = courses.map { com.example.domain.ScheduleHelper.parse(it.timeSlot) }.filter { it.startMinutes < it.endMinutes }
+        val startHour = if (parsedCourses.isEmpty()) 8 else (parsedCourses.minOf { it.startMinutes } / 60).coerceIn(6, 20)
+        val endHour = if (parsedCourses.isEmpty()) 17 else {
+            val maxMins = parsedCourses.maxOf { it.endMinutes }
+            ((maxMins + 59) / 60).coerceIn(9, 22)
+        }
+
+        val startDayMinutes = startHour * 60
+        val endDayMinutes = endHour * 60
         val totalMinutesRange = endDayMinutes - startDayMinutes
 
         // Draw Day Column Headers
@@ -372,7 +384,7 @@ object PlanImageExporter {
         val headerBarRect = RectF(matrixLeft + timeColWidth, matrixTop, matrixRight, gridContentTop)
         canvas.drawRoundRect(headerBarRect, 12f, 12f, paint)
 
-        paint.color = Color.WHITE
+        paint.color = android.graphics.Color.WHITE
         paint.textSize = 28f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         paint.textAlign = Paint.Align.CENTER
@@ -384,7 +396,7 @@ object PlanImageExporter {
         paint.textAlign = Paint.Align.LEFT
 
         // Draw Hour Grid Lines & Labels
-        val keyHours = listOf(8, 10, 12, 14, 16, 18, 20)
+        val keyHours = (startHour..endHour).toList()
         paint.color = 0xFFE2E8F0.toInt()
         paint.strokeWidth = 2f
 
@@ -413,7 +425,7 @@ object PlanImageExporter {
         // Draw Course Time Blocks
         val blockPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
+            color = android.graphics.Color.WHITE
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         }
 
@@ -440,11 +452,45 @@ object PlanImageExporter {
 
                     canvas.drawRoundRect(blockRect, 10f, 10f, blockPaint)
 
+                    // Time Band Background
+                    val bandRect = RectF(blockRect.left, blockRect.top, blockRect.right, blockRect.top + 34f)
+                    val bandPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+                    bandPaint.color = android.graphics.Color.BLACK
+                    bandPaint.alpha = 50
+                    val bandPath = android.graphics.Path().apply {
+                        addRoundRect(bandRect, floatArrayOf(10f, 10f, 10f, 10f, 0f, 0f, 0f, 0f), android.graphics.Path.Direction.CW)
+                    }
+                    canvas.drawPath(bandPath, bandPaint)
+
+                    // Draw Time Range
+                    val timePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+                    timePaint.color = android.graphics.Color.WHITE
+                    timePaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    timePaint.textSize = 15f
+                    timePaint.textAlign = Paint.Align.CENTER
+                    val timeString = parsed.timeRange12Hr.replace(" AM", "").replace(" PM", "")
+                    canvas.drawText(timeString, blockRect.centerX(), blockRect.top + 24f, timePaint)
+
                     // Draw Course Code & Section inside block
                     textPaint.textSize = 22f
                     textPaint.textAlign = Paint.Align.CENTER
-                    val textY = blockTop + ((blockBottom - blockTop) / 2f) + 7f
-                    canvas.drawText("${course.courseCode} - ${course.section}", blockRect.centerX(), textY, textPaint)
+                    
+                    // Calculate center space below the time band
+                    val contentTop = blockRect.top + 34f
+                    val contentCenterY = contentTop + ((blockBottom - contentTop) / 2f)
+                    
+                    // Draw Course Code
+                    canvas.drawText(course.courseCode, blockRect.centerX(), contentCenterY - 4f, textPaint)
+                    
+                    // Draw Section
+                    val secPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+                    secPaint.color = android.graphics.Color.WHITE
+                    secPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                    secPaint.textSize = 18f
+                    secPaint.textAlign = Paint.Align.CENTER
+                    secPaint.alpha = 230
+                    canvas.drawText("Sec ${course.section}", blockRect.centerX(), contentCenterY + 20f, secPaint)
+                    
                     textPaint.textAlign = Paint.Align.LEFT
                 }
             }

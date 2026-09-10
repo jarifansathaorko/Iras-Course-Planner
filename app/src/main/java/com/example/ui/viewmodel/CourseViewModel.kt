@@ -1,6 +1,8 @@
 package com.example.ui.viewmodel
 
 import android.app.Application
+import androidx.core.content.edit
+
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.AppDatabase
@@ -93,7 +95,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
                         .addOnSuccessListener { snap ->
                             val v = snap.getLong("version")?.toInt() ?: 0
                             getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-                                .edit().putInt("local_csv_version", v).apply()
+                                .edit { putInt("local_csv_version", v) }
                         }
                     
                     _uiEvents.emit(UiMessage.Success("Catalog updated successfully!"))

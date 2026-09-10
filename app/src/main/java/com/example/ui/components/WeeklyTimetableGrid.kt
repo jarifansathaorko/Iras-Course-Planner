@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -74,13 +75,26 @@ fun WeeklyTimetableGrid(
         Day.SATURDAY
     )
 
-    // Time boundary: 08:00 (480 mins) to 21:30 (1290 mins)
-    val startDayMinutes = 8 * 60
-    val endDayMinutes = 21 * 60 + 30
+    val parsedCourses = remember(courses) { courses.map { ScheduleHelper.parse(it.timeSlot) }.filter { it.startMinutes < it.endMinutes } }
+    
+    val startHour = remember(parsedCourses) {
+        if (parsedCourses.isEmpty()) 8 else (parsedCourses.minOf { it.startMinutes } / 60).coerceIn(6, 20)
+    }
+    val endHour = remember(parsedCourses) {
+        if (parsedCourses.isEmpty()) 17 else {
+            val maxMins = parsedCourses.maxOf { it.endMinutes }
+            ((maxMins + 59) / 60).coerceIn(9, 22)
+        }
+    }
+
+    val startDayMinutes = startHour * 60
+    val endDayMinutes = endHour * 60
     val totalMinutes = endDayMinutes - startDayMinutes
 
-    val hourSlotHeightDp = 64.dp
-    val totalHeightDp = hourSlotHeightDp * 14 // 14 hours range
+    // Compact mode: scale hour block based on how many hours we have to fit
+    val hourCount = endHour - startHour
+    val hourSlotHeightDp = 56.dp
+    val totalHeightDp = hourSlotHeightDp * hourCount
     val timeColWidth = 54.dp
     val dayColWidth = 110.dp
 
@@ -123,7 +137,6 @@ fun WeeklyTimetableGrid(
         }
 
         // Horizontal scrollable schedule grid container
-        val horizontalScrollState = rememberScrollState()
         val verticalScrollState = rememberScrollState()
 
         Card(
@@ -132,167 +145,220 @@ fun WeeklyTimetableGrid(
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(8.dp)) {
-                // Days Header Row
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(horizontalScrollState)
-                ) {
-                    // Empty corner for time column
-                    Box(
-                        modifier = Modifier
-                            .width(timeColWidth)
-                            .height(38.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "TIME",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.outline,
-                            fontSize = 10.sp
-                        )
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val availableWidth = maxWidth
+                
+                // Smart active days filtering
+                val activeDays = remember(courses) {
+                    courses.flatMap { ScheduleHelper.parse(it.timeSlot).days }.toSet()
+                }
+                
+                val displayDays = remember(activeDays) {
+                    if (activeDays.isEmpty()) {
+                        listOf(Day.SUNDAY, Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY)
+                    } else {
+                        listOf(Day.SUNDAY, Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY, Day.SATURDAY)
+                            .filter { it in activeDays }
                     }
-
-                    for (day in displayDays) {
+                }
+                
+                val timeColWidth = 46.dp
+                val minDayWidth = 72.dp
+                val calculatedDayWidth = (availableWidth - timeColWidth - 16.dp) / displayDays.size.coerceAtLeast(1)
+                val dayColWidth = maxOf(minDayWidth, calculatedDayWidth)
+                val totalGridWidth = timeColWidth + (dayColWidth * displayDays.size)
+                
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .horizontalScroll(rememberScrollState())
+                        .width(totalGridWidth)
+                ) {
+                    // Days Header Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Empty corner for time column
                         Box(
                             modifier = Modifier
-                                .width(dayColWidth)
-                                .height(38.dp)
-                                .padding(horizontal = 3.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                .width(timeColWidth)
+                                .height(38.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = day.shortName.uppercase(),
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text = "TIME",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.outline,
+                                fontSize = 10.sp
                             )
                         }
-                    }
-                }
 
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Scrollable Time Grid & Course Blocks
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(340.dp)
-                        .verticalScroll(verticalScrollState)
-                        .horizontalScroll(horizontalScrollState)
-                ) {
-                    // Grid background
-                    Row(modifier = Modifier.height(totalHeightDp)) {
-                        // Left time column labels
-                        Column(
-                            modifier = Modifier
-                                .width(timeColWidth)
-                                .fillMaxHeight()
-                        ) {
-                            for (hour in 8..21) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(timeColWidth)
-                                        .height(hourSlotHeightDp)
-                                        .padding(end = 6.dp),
-                                    contentAlignment = Alignment.TopEnd
-                                ) {
-                                    val amPm = if (hour >= 12) "PM" else "AM"
-                                    val h12 = if (hour > 12) hour - 12 else hour
-                                    Text(
-                                        text = "$h12 $amPm",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontSize = 10.sp,
-                                        color = MaterialTheme.colorScheme.outline
-                                    )
-                                }
-                            }
-                        }
-
-                        // Day Columns with hour separator lines
                         for (day in displayDays) {
                             Box(
                                 modifier = Modifier
                                     .width(dayColWidth)
-                                    .fillMaxHeight()
-                                    .border(
-                                        width = 0.5.dp,
-                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                                    )
+                                    .height(38.dp)
+                                    .padding(horizontal = 2.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                contentAlignment = Alignment.Center
                             ) {
-                                // Draw horizontal hour guidelines
-                                Column {
-                                    for (hour in 8..21) {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(hourSlotHeightDp)
-                                                .border(
-                                                    width = 0.5.dp,
-                                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f)
-                                                )
-                                        )
-                                    }
-                                }
+                                Text(
+                                    text = day.shortName.uppercase(),
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
                         }
                     }
 
-                    // Render Course Class Blocks on Top
-                    for ((cIndex, course) in courses.withIndex()) {
-                        val parsed = ScheduleHelper.parse(course.timeSlot)
-                        if (parsed.days.isEmpty() || parsed.startMinutes >= parsed.endMinutes) continue
+                    Spacer(modifier = Modifier.height(4.dp))
 
-                        val blockColor = BLOCK_COLORS[cIndex % BLOCK_COLORS.size]
+                    // Scrollable Time Grid & Course Blocks (Vertical Only)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 480.dp) // Limits max height, but wraps compact if smaller
+                            .verticalScroll(verticalScrollState)
+                    ) {
+                        // Grid background
+                        Row(modifier = Modifier.height(totalHeightDp)) {
+                            // Left time column labels
+                            Column(
+                                modifier = Modifier
+                                    .width(timeColWidth)
+                                    .fillMaxHeight()
+                            ) {
+                                for (hour in startHour..endHour) {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(timeColWidth)
+                                            .height(hourSlotHeightDp)
+                                            .padding(end = 4.dp),
+                                        contentAlignment = Alignment.TopEnd
+                                    ) {
+                                        val amPm = if (hour >= 12) "PM" else "AM"
+                                        val h12 = if (hour > 12) hour - 12 else hour
+                                        Text(
+                                            text = "$h12 $amPm",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontSize = 10.sp,
+                                            color = MaterialTheme.colorScheme.outline,
+                                            modifier = Modifier.offset(y = (-6).dp) // Shift up to align with the line
+                                        )
+                                    }
+                                }
+                            }
 
-                        // Compute top offset and height in Dp
-                        val startDiff = (parsed.startMinutes - startDayMinutes).coerceAtLeast(0)
-                        val duration = parsed.durationMinutes
-                        val topOffsetDp = (startDiff.toFloat() / 60f) * hourSlotHeightDp.value
-                        val blockHeightDp = ((duration.toFloat() / 60f) * hourSlotHeightDp.value).coerceAtLeast(36f)
-
-                        for (day in parsed.days) {
-                            val dayIdx = displayDays.indexOf(day)
-                            if (dayIdx >= 0) {
-                                val leftOffsetDp = timeColWidth.value + (dayIdx * dayColWidth.value) + 3f
-                                val blockWidthDp = dayColWidth.value - 6f
-
+                            // Day Columns with hour separator lines
+                            for (day in displayDays) {
                                 Box(
                                     modifier = Modifier
-                                        .offset(x = leftOffsetDp.dp, y = topOffsetDp.dp)
-                                        .width(blockWidthDp.dp)
-                                        .height(blockHeightDp.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(blockColor)
-                                        .border(1.dp, Color.White.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-                                        .clickable {
-                                            selectedCourseForInfo = course
-                                            onCourseClick?.invoke(course)
-                                        }
-                                        .padding(4.dp)
+                                        .width(dayColWidth)
+                                        .fillMaxHeight()
+                                        .border(
+                                            width = 0.5.dp,
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                                        )
                                 ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.Center
+                                    // Draw horizontal hour guidelines
+                                    Column {
+                                        for (hour in startHour until endHour) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(hourSlotHeightDp)
+                                                    .border(
+                                                        width = 0.5.dp,
+                                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f)
+                                                    )
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Render Course Class Blocks on Top
+                        for ((cIndex, course) in courses.withIndex()) {
+                            val parsed = ScheduleHelper.parse(course.timeSlot)
+                            if (parsed.days.isEmpty() || parsed.startMinutes >= parsed.endMinutes) continue
+
+                            val blockColor = BLOCK_COLORS[cIndex % BLOCK_COLORS.size]
+
+                            // Compute top offset and height in Dp
+                            val startDiff = (parsed.startMinutes - startDayMinutes).coerceAtLeast(0)
+                            val duration = parsed.durationMinutes
+                            val topOffsetDp = (startDiff.toFloat() / 60f) * hourSlotHeightDp.value
+                            val blockHeightDp = ((duration.toFloat() / 60f) * hourSlotHeightDp.value).coerceAtLeast(36f)
+
+                            for (day in parsed.days) {
+                                val dayIdx = displayDays.indexOf(day)
+                                if (dayIdx >= 0) {
+                                    val leftOffsetDp = timeColWidth.value + (dayIdx * dayColWidth.value)
+                                    val blockWidthDp = dayColWidth.value
+
+                                    Box(
+                                        modifier = Modifier
+                                            .offset(x = leftOffsetDp.dp, y = topOffsetDp.dp)
+                                            .width(blockWidthDp.dp)
+                                            .height(blockHeightDp.dp)
+                                            .padding(horizontal = 2.dp, vertical = 1.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(blockColor)
+                                            .clickable {
+                                                selectedCourseForInfo = course
+                                                onCourseClick?.invoke(course)
+                                            }
                                     ) {
-                                        Text(
-                                            text = "${course.courseCode} - ${course.section}",
-                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                            color = Color.White,
-                                            fontSize = 11.sp,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Text(
-                                            text = parsed.timeRange12Hr,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = Color.White.copy(alpha = 0.9f),
-                                            fontSize = 9.sp,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
+                                        Column(modifier = Modifier.fillMaxSize()) {
+                                            // Top dark translucent band for time
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .background(Color.Black.copy(alpha = 0.2f))
+                                                    .padding(horizontal = 4.dp, vertical = 3.dp),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = parsed.timeRange12Hr.replace(" AM", "").replace(" PM", ""),
+                                                    color = Color.White,
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                            
+                                            // Course info
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                                                verticalArrangement = Arrangement.Center,
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    text = course.courseCode,
+                                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),
+                                                    color = Color.White,
+                                                    fontSize = 12.sp,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                                Spacer(modifier = Modifier.height(1.dp))
+                                                Text(
+                                                    text = "Sec ${course.section}",
+                                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                                                    color = Color.White.copy(alpha = 0.9f),
+                                                    fontSize = 10.sp,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
