@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -493,15 +494,19 @@ fun CourseCatalogCard(
     conflict: ConflictResult?,
     onSelectClick: () -> Unit
 ) {
+    val isSameCourseConflict = conflict is com.example.domain.ConflictResult.SameCourse
+    
     val cardBorderColor = when {
-        isSelected -> SelectedBlueBorder
-        conflict != null -> ConflictRedBorder
+        isSelected -> MaterialTheme.colorScheme.primary
+        isSameCourseConflict -> MaterialTheme.colorScheme.outlineVariant
+        conflict != null -> MaterialTheme.colorScheme.error
         else -> MaterialTheme.colorScheme.outlineVariant
     }
 
     val cardBgColor = when {
-        isSelected -> SelectedBlueBg
-        conflict != null -> ConflictRedBg
+        isSelected -> MaterialTheme.colorScheme.primaryContainer
+        isSameCourseConflict -> MaterialTheme.colorScheme.surface
+        conflict != null -> MaterialTheme.colorScheme.errorContainer
         else -> MaterialTheme.colorScheme.surface
     }
 
@@ -779,15 +784,21 @@ fun CourseCatalogCard(
                     Button(
                         onClick = onSelectClick,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (conflict != null) ConflictRed else MaterialTheme.colorScheme.primary
+                            containerColor = when {
+                                isSameCourseConflict -> MaterialTheme.colorScheme.secondary
+                                conflict != null -> MaterialTheme.colorScheme.error
+                                else -> MaterialTheme.colorScheme.primary
+                            }
                         ),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.testTag("select_course_${course.id}")
                     ) {
                         if (conflict != null) {
-                            Icon(imageVector = Icons.Default.Warning, contentDescription = null, modifier = Modifier.size(16.dp))
+                            val btnIcon = if (isSameCourseConflict) androidx.compose.material.icons.Icons.Default.Info else androidx.compose.material.icons.Icons.Default.Warning
+                            val btnText = if (isSameCourseConflict) "Switch to Sec ${course.section}" else "Resolve & Select"
+                            Icon(imageVector = btnIcon, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Resolve Conflict & Select")
+                            Text(btnText)
                         } else {
                             Text("+ Select Course")
                         }

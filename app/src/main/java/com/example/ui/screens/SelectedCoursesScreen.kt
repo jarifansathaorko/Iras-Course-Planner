@@ -64,8 +64,6 @@ import com.example.data.entity.CourseEntity
 import com.example.domain.ScheduleHelper
 import com.example.ui.components.WeeklyTimetableGrid
 import com.example.ui.theme.ConflictRed
-import com.example.ui.theme.SelectedBlueBg
-import com.example.ui.theme.SelectedBlueBorder
 import com.example.ui.theme.SuccessGreen
 
 @Composable
@@ -307,7 +305,7 @@ fun SelectedCoursesScreen(
                         Icon(imageVector = Icons.Default.Save, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Confirm Schedule for Plans (${selectedCourses.size} Courses)",
+                            text = "Confirm Schedule",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
                     }
@@ -328,7 +326,7 @@ fun SelectedCourseCard(
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.2.dp, SelectedBlueBorder),
+        border = androidx.compose.foundation.BorderStroke(1.2.dp, MaterialTheme.colorScheme.primary),
         modifier = Modifier
             .fillMaxWidth()
             .testTag("selected_course_item_${course.id}")
@@ -395,7 +393,7 @@ fun SelectedCourseCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .background(SelectedBlueBg)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             ) {
                 Icon(

@@ -108,7 +108,7 @@ fun ConfirmScheduleDialog(
 
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = if (isSelected) SelectedBlueBg else MaterialTheme.colorScheme.surface,
+                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
                             border = androidx.compose.foundation.BorderStroke(
                                 1.5.dp,
                                 if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant

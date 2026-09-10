@@ -103,14 +103,14 @@ fun ChangeSectionDialog(
                         val parsed = ScheduleHelper.parse(sectionCandidate.timeSlot)
 
                         val backgroundColor = when {
-                            isCurrent -> SelectedBlueBg
+                            isCurrent -> MaterialTheme.colorScheme.primaryContainer
                             isFull -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            conflict != null -> ConflictRedBg
+                            conflict != null -> MaterialTheme.colorScheme.errorContainer
                             else -> MaterialTheme.colorScheme.surface
                         }
 
                         val borderColor = when {
-                            isCurrent -> SelectedBlueBorder
+                            isCurrent -> MaterialTheme.colorScheme.primary
                             isFull -> MaterialTheme.colorScheme.outlineVariant
                             conflict != null -> ConflictRed.copy(alpha = 0.4f)
                             else -> MaterialTheme.colorScheme.outlineVariant

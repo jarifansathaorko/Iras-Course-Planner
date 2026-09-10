@@ -65,8 +65,6 @@ import com.example.data.entity.PlanMetaEntity
 import com.example.domain.ScheduleHelper
 import com.example.ui.components.WeeklyTimetableGrid
 import com.example.ui.theme.ConflictRed
-import com.example.ui.theme.SelectedBlueBg
-import com.example.ui.theme.SelectedBlueBorder
 import com.example.ui.theme.TertiaryGold
 
 @Composable
