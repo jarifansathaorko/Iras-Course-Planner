@@ -59,15 +59,16 @@ Create a `previews` folder in your repository and upload your screenshots there 
     </tr>
     <tr>
       <td align="center">
+        <img src="previews/change-section.jpg" width="220"/>
+        <br /><b>Change Section</b>
+      </td>
+      <td align="center">
         <img src="previews/save-dialog.jpg" width="220"/>
         <br /><b>Save to Plans</b>
       </td>
       <td align="center">
         <img src="previews/saved-plans.jpg" width="220"/>
         <br /><b>Saved Semester Plans</b>
-      </td>
-      <td align="center">
-        <!-- Empty cell to balance the 3-column table -->
       </td>
     </tr>
   </table>
