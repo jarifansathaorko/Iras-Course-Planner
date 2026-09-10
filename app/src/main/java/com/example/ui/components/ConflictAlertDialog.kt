@@ -57,8 +57,8 @@ fun ConflictAlertDialog(
                 modifier = Modifier
                     .size(54.dp)
                     .clip(CircleShape)
-                    .background(ConflictRedBg)
-                    .border(1.5.dp, ConflictRedBorder, CircleShape),
+                    .background(ConflictRed.copy(alpha = 0.1f))
+                    .border(1.5.dp, ConflictRed.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -96,53 +96,85 @@ fun ConflictAlertDialog(
                 )
 
                 // Conflict Detail Box
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(ConflictRedBg)
-                        .border(1.dp, ConflictRedBorder, RoundedCornerShape(12.dp))
-                        .padding(12.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        .border(1.dp, ConflictRed.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    // Candidate Info
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = "Candidate",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        val candParsed = ScheduleHelper.parse(candidate.timeSlot)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "Candidate:",
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                color = ConflictRed
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            val candParsed = ScheduleHelper.parse(candidate.timeSlot)
-                            Text(
-                                text = "${candidate.courseCode} Sec ${candidate.section} • ${candParsed.formattedTime}",
-                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                text = candidate.courseCode,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold),
                                 color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-
-                        val existing = when (conflict) {
-                            is ConflictResult.SameCourse -> conflict.existing
-                            is ConflictResult.TimeOverlap -> conflict.existing
-                        }
-                        val existParsed = ScheduleHelper.parse(existing.timeSlot)
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Clashes with:",
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                color = ConflictRed
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "${existing.courseCode} Sec ${existing.section} • ${existParsed.formattedTime}",
-                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onSurface
+                                text = "Sec ${candidate.section}",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-
-                        if (conflict is ConflictResult.TimeOverlap) {
+                        Text(
+                            text = candParsed.formattedTime,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    
+                    val existing = when (conflict) {
+                        is ConflictResult.SameCourse -> conflict.existing
+                        is ConflictResult.TimeOverlap -> conflict.existing
+                    }
+                    val existParsed = ScheduleHelper.parse(existing.timeSlot)
+                    
+                    // Clashes With Info
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = "Clashes with",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                            color = ConflictRed
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "Overlap on: ${conflict.overlappingDays.joinToString(", ") { it.fullName }} (${conflict.clashTimeDescription})",
+                                text = existing.courseCode,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Sec ${existing.section}",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Text(
+                            text = existParsed.formattedTime,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    if (conflict is ConflictResult.TimeOverlap) {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(
+                                text = "Overlap on:",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = ConflictRed
+                            )
+                            Text(
+                                text = "${conflict.overlappingDays.joinToString(", ") { it.fullName }} · ${conflict.clashTimeDescription}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = ConflictRed
                             )
