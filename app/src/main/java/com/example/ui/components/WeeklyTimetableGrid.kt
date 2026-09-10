@@ -221,7 +221,6 @@ fun WeeklyTimetableGrid(
                 Column(
                     modifier = Modifier
                         .padding(8.dp)
-                        .horizontalScroll(rememberScrollState())
                         .width(totalGridWidth)
                 ) {
                     // Days Header Row
