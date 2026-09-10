@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,6 +37,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -357,11 +360,49 @@ fun CourseCatalogScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "${courses.size} Course Sections Found",
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${courses.size} Course Sections Found",
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                val isFiltered = searchQuery.isNotEmpty() || selectedDept != "ALL" || selectedCourseCodeDropdown != null || selectedSectionDropdown != null
+                if (isFiltered && courses.isNotEmpty()) {
+                    val context = LocalContext.current
+                    IconButton(
+                        onClick = {
+                            val filterDescription = if (selectedCourseCodeDropdown != null) {
+                                if (selectedSectionDropdown != null) {
+                                    "Course: $selectedCourseCodeDropdown, Section: $selectedSectionDropdown"
+                                } else {
+                                    "Course: $selectedCourseCodeDropdown"
+                                }
+                            } else if (searchQuery.isNotEmpty()) {
+                                "Search: \"$searchQuery\""
+                            } else {
+                                "Department: $selectedDept"
+                            }
+                            com.example.util.PlanImageExporter.exportAndShareCourseList(
+                                context = context,
+                                courses = courses,
+                                filterText = filterDescription
+                            )
+                        },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share Course List",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
 
             if (selectedCourses.isNotEmpty()) {
                 Box(

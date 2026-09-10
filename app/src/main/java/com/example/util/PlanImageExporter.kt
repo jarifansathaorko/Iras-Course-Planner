@@ -66,7 +66,147 @@ object PlanImageExporter {
         context.startActivity(chooser)
     }
 
+
+    fun exportAndShareCourseList(
+        context: Context,
+        courses: List<CourseEntity>,
+        filterText: String
+    ) {
+        val bitmap = renderCourseListBitmap(context, courses, filterText)
+        val cacheDir = File(context.cacheDir, "shared_images")
+        if (!cacheDir.exists()) {
+            cacheDir.mkdirs()
+        }
+        val file = File(cacheDir, "course_list_${System.currentTimeMillis()}.png")
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            out.flush()
+        }
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/png"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            putExtra(Intent.EXTRA_SUBJECT, "Course List")
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "Here are ${courses.size} courses I found for: $filterText"
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooser = Intent.createChooser(shareIntent, "Share Course List")
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooser)
+    }
+
+    private fun renderCourseListBitmap(
+        context: Context,
+        courses: List<CourseEntity>,
+        filterText: String
+    ): Bitmap {
+        val width = 1440
+        val baseHeaderHeight = 320
+        val cardHeaderHeight = 90
+        val courseItemHeight = 136
+        val courseItemSpacing = 14
+        val cardBottomPadding = 40
+        
+        val maxCourses = 40
+        val displayCourses = courses.take(maxCourses)
+        val tableHeight = cardHeaderHeight + (displayCourses.size * (courseItemHeight + courseItemSpacing)).coerceAtLeast(140) + cardBottomPadding + if (courses.size > maxCourses) 60 else 0
+        val footerHeight = 140
+        val padding = 48
+        
+        val totalHeight = baseHeaderHeight + tableHeight + footerHeight + (padding * 3)
+        val bitmap = createBitmap(width, totalHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        
+        canvas.drawColor(0xFFF1F5F9.toInt())
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        
+        // 1. Header Card
+        val headerRect = RectF(
+            padding.toFloat(),
+            padding.toFloat(),
+            (width - padding).toFloat(),
+            (padding + baseHeaderHeight).toFloat()
+        )
+        paint.color = 0xFF0F172A.toInt()
+        paint.style = Paint.Style.FILL
+        canvas.drawRoundRect(headerRect, 32f, 32f, paint)
+        
+        paint.color = 0xFF38BDF8.toInt()
+        paint.textSize = 34f
+        paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        canvas.drawText("IRAS COURSE PLANNER", headerRect.left + 48f, headerRect.top + 80f, paint)
+        
+        paint.color = Color.WHITE
+        paint.textSize = 58f
+        paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        val titleStr = if (filterText.length > 30) filterText.take(28) + "..." else filterText
+        canvas.drawText(titleStr, headerRect.left + 48f, headerRect.top + 165f, paint)
+        
+        paint.color = 0xFF94A3B8.toInt()
+        paint.textSize = 32f
+        paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        val dateStr = SimpleDateFormat("MMM dd, yyyy", Locale.US).format(Date())
+        canvas.drawText(
+            "${courses.size} Course Sections Found  •  Generated $dateStr",
+            headerRect.left + 48f,
+            headerRect.top + 235f,
+            paint
+        )
+        
+        val logoDrawable = ContextCompat.getDrawable(context, R.drawable.ic_iras_logo)
+        logoDrawable?.let {
+            val logoSize = 110
+            val logoX = (headerRect.right - logoSize - 48f).toInt()
+            val logoY = (headerRect.top + 40f).toInt()
+            it.setBounds(logoX, logoY, logoX + logoSize, logoY + logoSize)
+            it.draw(canvas)
+        }
+        
+        // 2. Course List Table Card
+        val currentY = headerRect.bottom + padding
+        val tableCardRect = RectF(
+            padding.toFloat(),
+            currentY,
+            (width - padding).toFloat(),
+            currentY + tableHeight
+        )
+        paint.color = Color.WHITE
+        canvas.drawRoundRect(tableCardRect, 32f, 32f, paint)
+        
+        drawCourseTable(canvas, tableCardRect, displayCourses, cardHeaderHeight, showEnrollment = true)
+        
+        if (courses.size > maxCourses) {
+            paint.color = 0xFF94A3B8.toInt()
+            paint.textSize = 30f
+            paint.textAlign = Paint.Align.CENTER
+            canvas.drawText("... and ${courses.size - maxCourses} more courses", width / 2f, tableCardRect.bottom - 40f, paint)
+            paint.textAlign = Paint.Align.LEFT
+        }
+        
+        // 3. Footer
+        val footerY = tableCardRect.bottom + padding + 40f
+        paint.color = 0xFF64748B.toInt()
+        paint.textSize = 28f
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText(
+            "Iras Course Planner • University Course Selection & Timetable Planner",
+            (width / 2).toFloat(),
+            footerY,
+            paint
+        )
+        return bitmap
+    }
+
     private fun renderPlanBitmap(
+
         context: Context,
         planNumber: Int,
         planName: String,
@@ -315,7 +455,8 @@ object PlanImageExporter {
         canvas: Canvas,
         rect: RectF,
         courses: List<CourseEntity>,
-        headerHeight: Int
+        headerHeight: Int,
+        showEnrollment: Boolean = false
     ) {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         val cardLeft = rect.left + 36f
@@ -411,6 +552,19 @@ object PlanImageExporter {
             canvas.drawRoundRect(crBadgeRect, 10f, 10f, pillPaint)
             badgeTextPaint.color = 0xFF475569.toInt() // Slate 600
             canvas.drawText(crText, badgeX + 12f, line1Y - 2f, badgeTextPaint)
+
+            if (showEnrollment) {
+                badgeX = crBadgeRect.right + 12f
+                val enrText = "${course.enrolled} / ${course.capacity} Enrolled"
+                val isFull = course.capacity > 0 && course.enrolled >= course.capacity
+                pillPaint.color = if (isFull) 0xFFFEE2E2.toInt() else 0xFFFEF3C7.toInt()
+                badgeTextPaint.color = if (isFull) 0xFFDC2626.toInt() else 0xFFD97706.toInt()
+                
+                val enrTextWidth = badgeTextPaint.measureText(enrText)
+                val enrBadgeRect = RectF(badgeX, line1Y - 27f, badgeX + enrTextWidth + 24f, line1Y + 9f)
+                canvas.drawRoundRect(enrBadgeRect, 10f, 10f, pillPaint)
+                canvas.drawText(enrText, badgeX + 12f, line1Y - 2f, badgeTextPaint)
+            }
 
             // Schedule on Right Column
             val parsed = ScheduleHelper.parse(course.timeSlot)
