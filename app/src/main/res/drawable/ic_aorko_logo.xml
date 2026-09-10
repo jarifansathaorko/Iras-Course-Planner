@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Circular Badge Outer Frame -->
+    <path
+        android:fillColor="#1E3A8A"
+        android:pathData="M54,6 C79.4,6 100,26.6 100,52 C100,77.4 79.4,98 54,98 C28.6,98 8,77.4 8,52 C8,26.6 28.6,6 54,6 Z" />
+
+    <!-- Gold Accent Ring -->
+    <path
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="2.5"
+        android:fillColor="#00000000"
+        android:pathData="M54,8 C78.3,8 98,27.7 98,52 C98,76.3 78.3,96 54,96 C29.7,96 10,76.3 10,52 C10,27.7 29.7,8 54,8 Z" />
+
+    <!-- Inner Portrait Backdrop -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M54,10 C77.2,10 96,28.8 96,52 C96,75.2 77.2,94 54,94 C30.8,94 12,75.2 12,52 C12,28.8 30.8,10 54,10 Z" />
+
+    <!-- Subtle Schedule Grid in Background -->
+    <path
+        android:strokeColor="#334155"
+        android:strokeWidth="0.8"
+        android:fillColor="#00000000"
+        android:pathData="M24,32 L84,32 M24,46 L84,46 M38,20 L38,84 M70,20 L70,84" />
+
+    <!-- Academic Sparkles in Gold -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M24,24 L25.5,27 L28.5,28.5 L25.5,30 L24,33 L22.5,30 L19.5,28.5 L22.5,27 Z" />
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M84,24 L85.5,27 L88.5,28.5 L85.5,30 L84,33 L82.5,30 L79.5,28.5 L82.5,27 Z" />
+
+    <!-- Aorko Portrait Silhouette -->
+
+    <!-- Suit Jacket / Blazer (Navy Blue) -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M24,94 C25,82 34,74 42,72 L47,78 L54,87 L61,78 L66,72 C74,74 83,82 84,94 Z" />
+
+    <!-- Suit Shoulder & Lapel Highlights -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M24,94 C25,83 32,76 39,73 L45,86 L32,94 Z
+                          M84,94 C83,83 76,76 69,73 L63,86 L76,94 Z" />
+
+    <!-- Light Blue Dress Shirt (Collared V-Neck) -->
+    <path
+        android:fillColor="#93C5FD"
+        android:pathData="M44,72 L54,86 L64,72 L59,69 L54,74 L49,69 Z" />
+
+    <!-- Shirt Collar Wings -->
+    <path
+        android:fillColor="#BFDBFE"
+        android:pathData="M47,68 L53,75 L50,78 L44,71 Z
+                          M61,68 L55,75 L58,78 L64,71 Z" />
+
+    <!-- Neck -->
+    <path
+        android:fillColor="#B87B57"
+        android:pathData="M49,58 L59,58 L59,71 L49,71 Z" />
+
+    <!-- Neck Shadow under chin -->
+    <path
+        android:fillColor="#9F6544"
+        android:pathData="M49,58 L59,58 L57,63 L51,63 Z" />
+
+    <!-- Ears -->
+    <path
+        android:fillColor="#C68965"
+        android:pathData="M39,44 C37.5,44 36.5,46 36.5,49 C36.5,52 37.5,54 39,54 Z
+                          M69,44 C70.5,44 71.5,46 71.5,49 C71.5,52 70.5,54 69,54 Z" />
+
+    <!-- Face Base (Warm Tan Skin) -->
+    <path
+        android:fillColor="#C68965"
+        android:pathData="M40,43 C40,36 46,33 54,33 C62,33 68,36 68,43 C68,51 66,60 54,61 C42,60 40,51 40,43 Z" />
+
+    <!-- Jawline & Chin Contour -->
+    <path
+        android:fillColor="#B87B57"
+        android:pathData="M42,50 C44,57 48,60 54,61 C60,60 64,57 66,50 C67,52 65,58 54,61 C43,58 41,52 42,50 Z" />
+
+    <!-- Mustache & Beard / Goatee (Dark Blackish Navy) -->
+    <!-- Jawline Short Beard -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M39,47 L41,47 C41,53 44,58 54,61.5 C64,58 67,53 67,47 L69,47 C69,54 65,60 54,62.5 C43,60 39,54 39,47 Z" />
+    
+    <!-- Chin Goatee -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M50,56 C50,56 52,58 54,58 C56,58 58,56 58,56 C58,59 56,62 54,62 C52,62 50,59 50,56 Z" />
+
+    <!-- Mustache -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M46,52.5 C48,51.8 51,52.5 54,53.2 C57,52.5 60,51.8 62,52.5 C61,54 58,54.8 54,54.4 C50,54.8 47,54 46,52.5 Z" />
+
+    <!-- Lips -->
+    <path
+        android:fillColor="#9C5D49"
+        android:pathData="M50,54.2 C52,54.8 54,54.8 54,54.8 C54,54.8 56,54.8 58,54.2 C57,55.5 55,56 54,56 C53,56 51,55.5 50,54.2 Z" />
+
+    <!-- Nose Bridge & Nostrils -->
+    <path
+        android:strokeColor="#A86B49"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M54,41 L53.5,48 L55.5,49 L52.5,49.5" />
+
+    <!-- Eyes (Dark Expressive) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,45.5 C45.5,44.5 48.5,44.5 50,45.5 C48.5,46.5 45.5,46.5 44,45.5 Z
+                          M58,45.5 C59.5,44.5 62.5,44.5 64,45.5 C62.5,46.5 59.5,46.5 58,45.5 Z" />
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M46,44.8 A1.2,1.2 0 1,1 48.4,44.8 A1.2,1.2 0 1,1 46,44.8 Z
+                          M59.6,44.8 A1.2,1.2 0 1,1 62,44.8 A1.2,1.2 0 1,1 59.6,44.8 Z" />
+
+    <!-- Bold Arched Eyebrows -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M43,43 C45,41.5 49,41.5 51,43 C49,42.2 45,42.2 43,43 Z
+                          M57,43 C59,41.5 63,41.5 65,43 C63,42.2 59,42.2 57,43 Z" />
+
+    <!-- Hair (Styled Modern Voluminous Quiff / Pompadour) -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M38,43 C37,39 38,34 40,31 C43,26 49,23 55,23 C62,23 68,26 70,31 C71,34 71,39 69,43 C67,39 67,34 65,33 C61,35 48,34 43,36 C41,38 39,41 38,43 Z" />
+    <!-- Hair Volume Crown Peak -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M41,31 C43,25 48,22 55,22 C61,22 66,24 69,28 C66,25 61,24 55,24 C48,24 44,27 41,31 Z" />
+    <!-- Hair Texture / Sheen Highlight -->
+    <path
+        android:strokeColor="#334155"
+        android:strokeWidth="1"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M46,27 C50,25 56,25 62,28" />
+
+</vector>

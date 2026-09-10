@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Outer Circular Ring Accent -->
+    <path
+        android:strokeColor="#3B82F6"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:pathData="M54,18 C73.88,18 90,34.12 90,54 C90,73.88 73.88,90 54,90 C34.12,90 18,73.88 18,54 C18,34.12 34.12,18 54,18 Z" />
+
+    <!-- Stylized Academic Shield Base -->
+    <path
+        android:fillColor="#1E293B"
+        android:strokeColor="#60A5FA"
+        android:strokeWidth="2"
+        android:pathData="M30,30 L78,30 C78,30 80,62 54,82 C28,62 30,30 30,30 Z" />
+
+    <!-- Inner Shield Gradient Grid Panels (IRAS Course Timetable Blocks) -->
+    <!-- Block 1: Sunday/Monday Top Left -->
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="M35,36 L51,36 L51,48 L35,48 Z" />
+    <!-- Block 2: Tuesday/Wednesday Top Right -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M57,36 L73,36 L73,48 L57,48 Z" />
+    <!-- Block 3: Lab/Mid-Day Bottom Left -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M37,52 L51,52 L51,64 L39,64 Z" />
+    <!-- Block 4: Evening Bottom Right -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M57,52 L71,52 L69,64 L57,64 Z" />
+
+    <!-- Bold 'V' Monogram Wings for 'Vogla' -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,32 L49,32 L54,58 L59,32 L68,32 L58,74 L50,74 Z" />
+
+    <!-- Golden Graduation Cap / Apex Crest -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M54,20 L76,28 L54,36 L32,28 Z" />
+    <!-- Cap Under-band -->
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M42,32.2 L54,36.5 L66,32.2 L66,34 L54,38 L42,34 Z" />
+    <!-- Cap Tassel Drop -->
+    <path
+        android:strokeColor="#FDE68A"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M70,30 L73,38 L75,39" />
+
+    <!-- Conflict-Free Checkmark Sparkle at Bottom Shield Apex -->
+    <path
+        android:fillColor="#34D399"
+        android:pathData="M50,77 L53,80 L60,73 L58.5,71.5 L53,77 L51.5,75.5 Z" />
+
+    <!-- Decorative Stars -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M24,42 L25,44 L27,45 L25,46 L24,48 L23,46 L21,45 L23,44 Z" />
+    <path
+        android:fillColor="#60A5FA"
+        android:pathData="M84,42 L85,44 L87,45 L85,46 L84,48 L83,46 L81,45 L83,44 Z" />
+
+</vector>

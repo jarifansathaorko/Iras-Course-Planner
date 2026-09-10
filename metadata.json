@@ -1,0 +1,6 @@
+{
+  "name": "Iras Course Planner",
+  "description": "Iras Course Planner • University course advising and schedule planner with instantaneous bitmask conflict detection, section swapping, timetable grid, plan comparisons, and schedule export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
