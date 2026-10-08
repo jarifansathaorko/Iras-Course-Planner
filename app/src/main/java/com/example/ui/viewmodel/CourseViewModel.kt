@@ -6,6 +6,10 @@ import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.AppDatabase
+import com.example.data.DownloadState
+import com.example.data.GitHubRelease
+import com.example.data.GitHubUpdateManager
+import com.example.data.UpdateCheckState
 import com.example.data.entity.CourseEntity
 import com.example.data.entity.PlanMetaEntity
 import com.example.data.repository.CourseRepository
@@ -15,6 +19,7 @@ import com.example.domain.ScheduleHelper
 import com.example.util.PlanImageExporter
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,12 +53,104 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
     val showUpdateDialog: StateFlow<Boolean> = _showUpdateDialog.asStateFlow()
     private var _pendingUpdateCsvUrl: String? = null
 
+    // GitHub Manual App Update States
+    private val _showGitHubUpdateDialog = MutableStateFlow(false)
+    val showGitHubUpdateDialog: StateFlow<Boolean> = _showGitHubUpdateDialog.asStateFlow()
+
+    private val _githubRepoName = MutableStateFlow(GitHubUpdateManager.getRepository(application))
+    val githubRepoName: StateFlow<String> = _githubRepoName.asStateFlow()
+
+    private val _githubCheckState = MutableStateFlow<UpdateCheckState>(UpdateCheckState.Idle)
+    val githubCheckState: StateFlow<UpdateCheckState> = _githubCheckState.asStateFlow()
+
+    private val _githubDownloadState = MutableStateFlow<DownloadState>(DownloadState.Idle)
+    val githubDownloadState: StateFlow<DownloadState> = _githubDownloadState.asStateFlow()
+
     init {
         val db = AppDatabase.getDatabase(application, viewModelScope)
         repository = CourseRepository(db.courseDao(), db.selectedCourseDao(), db.planDao())
         viewModelScope.launch {
             repository.ensureDataInitialized()
             listenForUpdates()
+        }
+    }
+
+    fun openGitHubUpdateDialog() {
+        _showGitHubUpdateDialog.value = true
+        // If still idle, trigger a check right away when dialog opens
+        if (_githubCheckState.value is UpdateCheckState.Idle) {
+            checkGitHubUpdates(_githubRepoName.value)
+        }
+    }
+
+    fun dismissGitHubUpdateDialog() {
+        _showGitHubUpdateDialog.value = false
+    }
+
+    fun checkGitHubUpdates(repo: String = _githubRepoName.value) {
+        val cleanRepo = repo.trim()
+        _githubRepoName.value = cleanRepo
+        GitHubUpdateManager.setRepository(getApplication(), cleanRepo)
+
+        viewModelScope.launch {
+            _githubCheckState.value = UpdateCheckState.Checking
+            _githubDownloadState.value = DownloadState.Idle
+            val result = GitHubUpdateManager.checkForUpdates(getApplication(), cleanRepo)
+            _githubCheckState.value = result
+        }
+    }
+
+    fun setGitHubRepo(newRepo: String) {
+        val clean = newRepo.trim()
+        _githubRepoName.value = clean
+        GitHubUpdateManager.setRepository(getApplication(), clean)
+        checkGitHubUpdates(clean)
+    }
+
+    fun downloadAndInstallUpdate(release: GitHubRelease) {
+        val apkUrl = release.apkDownloadUrl ?: return
+        val apkName = release.apkFileName ?: "CoursePlanner-${release.tagName}.apk"
+
+        viewModelScope.launch {
+            try {
+                _githubDownloadState.value = DownloadState.Downloading(
+                    progress = 0f,
+                    downloadedBytes = 0L,
+                    totalBytes = release.apkSize
+                )
+
+                val downloadedFile = GitHubUpdateManager.downloadApk(
+                    context = getApplication(),
+                    downloadUrl = apkUrl,
+                    fileName = apkName,
+                    onProgress = { progress, downloaded, total ->
+                        _githubDownloadState.value = DownloadState.Downloading(
+                            progress = progress,
+                            downloadedBytes = downloaded,
+                            totalBytes = total
+                        )
+                    }
+                )
+
+                _githubDownloadState.value = DownloadState.Completed(downloadedFile)
+
+                // Attempt to launch installer
+                val launched = GitHubUpdateManager.triggerPackageInstall(getApplication(), downloadedFile)
+                if (!launched) {
+                    _uiEvents.emit(UiMessage.Info("Please allow installing unknown apps from Course Planner, then tap Install."))
+                }
+            } catch (e: Exception) {
+                _githubDownloadState.value = DownloadState.Error(e.localizedMessage ?: "Download failed")
+            }
+        }
+    }
+
+    fun installDownloadedApk(file: File) {
+        val launched = GitHubUpdateManager.triggerPackageInstall(getApplication(), file)
+        if (!launched) {
+            viewModelScope.launch {
+                _uiEvents.emit(UiMessage.Info("Please enable unknown app install permission in Settings, then tap Install."))
+            }
         }
     }
 

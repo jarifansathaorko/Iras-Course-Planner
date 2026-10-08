@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -107,6 +108,7 @@ fun CourseCatalogScreen(
     onSectionDropdownSelect: (Int?) -> Unit,
     onSelectCourse: (CourseEntity) -> Unit,
     onClearFilters: () -> Unit,
+    onOpenAppUpdate: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showCourseCodeMenu by remember { mutableStateOf(false) }
@@ -154,7 +156,7 @@ fun CourseCatalogScreen(
                             .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "Iras Course Planner",
                             style = MaterialTheme.typography.titleLarge.copy(
@@ -167,6 +169,18 @@ fun CourseCatalogScreen(
                             text = "University Advising & Fast Conflict Detector",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    IconButton(
+                        onClick = onOpenAppUpdate,
+                        modifier = Modifier
+                            .testTag("btn_check_github_update")
+                            .size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.SystemUpdate,
+                            contentDescription = "Check for Updates",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }

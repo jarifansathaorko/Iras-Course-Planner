@@ -33,7 +33,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.BuildConfig
 import com.example.domain.ConflictResult
+import com.example.ui.components.AppUpdateDialog
 import com.example.ui.components.ChangeSectionDialog
 import com.example.ui.components.ConflictAlertDialog
 import com.example.ui.components.ConfirmScheduleDialog
@@ -66,6 +68,10 @@ fun CourseSelectApp(
     val courseToChange by viewModel.courseToChange.collectAsState()
     val showSavePlanDialog by viewModel.showSavePlanDialog.collectAsState()
     val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
+    val showGitHubUpdateDialog by viewModel.showGitHubUpdateDialog.collectAsState()
+    val githubRepoName by viewModel.githubRepoName.collectAsState()
+    val githubCheckState by viewModel.githubCheckState.collectAsState()
+    val githubDownloadState by viewModel.githubDownloadState.collectAsState()
 
     val activePlanTab by viewModel.activePlanTab.collectAsState()
     val allPlanMeta by viewModel.allPlanMeta.collectAsState()
@@ -208,7 +214,8 @@ fun CourseSelectApp(
                         onCourseCodeDropdownSelect = viewModel::onSelectCourseCodeDropdown,
                         onSectionDropdownSelect = viewModel::onSelectSectionDropdown,
                         onSelectCourse = viewModel::selectCourse,
-                        onClearFilters = viewModel::clearSearchAndFilters
+                        onClearFilters = viewModel::clearSearchAndFilters,
+                        onOpenAppUpdate = viewModel::openGitHubUpdateDialog
                     )
                 }
                 1 -> {
@@ -295,6 +302,20 @@ fun CourseSelectApp(
             showDialog = showUpdateDialog,
             onDismiss = viewModel::dismissUpdateDialog,
             onConfirm = viewModel::confirmUpdate
+        )
+
+        // Manual GitHub App Update Dialog
+        AppUpdateDialog(
+            showDialog = showGitHubUpdateDialog,
+            currentVersion = BuildConfig.VERSION_NAME,
+            repoName = githubRepoName,
+            checkState = githubCheckState,
+            downloadState = githubDownloadState,
+            onDismiss = viewModel::dismissGitHubUpdateDialog,
+            onCheckUpdate = viewModel::checkGitHubUpdates,
+            onSaveRepo = viewModel::setGitHubRepo,
+            onDownloadAndInstall = viewModel::downloadAndInstallUpdate,
+            onInstallApk = viewModel::installDownloadedApk
         )
     }
 }
