@@ -6,11 +6,6 @@ import org.junit.Test
 
 class ExampleUnitTest {
   @Test
-  fun addition_isCorrect() {
-    assertEquals(4, 2 + 2)
-  }
-
-  @Test
   fun testGitHubVersionComparison() {
     // Newer versions
     assertTrue(GitHubUpdateManager.isNewerVersion("v1.0.1", "1.0"))
