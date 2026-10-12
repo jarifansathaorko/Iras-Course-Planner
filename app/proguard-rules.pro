@@ -19,3 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# GitHub OTA update models
+-keep class com.example.data.GitHubRelease { *; }
+-keep class com.example.data.UpdateCheckState** { *; }
+-keep class com.example.data.DownloadState** { *; }
+-keepclassmembers class com.example.BuildConfig {
+    public static final java.lang.String VERSION_NAME;
+    public static final int VERSION_CODE;
+}

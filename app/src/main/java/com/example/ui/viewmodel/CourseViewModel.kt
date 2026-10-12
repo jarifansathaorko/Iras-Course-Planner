@@ -72,6 +72,21 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             repository.ensureDataInitialized()
             listenForUpdates()
+            checkAppUpdatesSilentlyOnStartup()
+        }
+    }
+
+    private fun checkAppUpdatesSilentlyOnStartup() {
+        viewModelScope.launch {
+            try {
+                val result = GitHubUpdateManager.checkForUpdates(getApplication(), _githubRepoName.value)
+                if (result is UpdateCheckState.UpdateAvailable) {
+                    _githubCheckState.value = result
+                    _showGitHubUpdateDialog.value = true
+                }
+            } catch (_: Exception) {
+                // Silent on startup failure: user will not be interrupted if offline
+            }
         }
     }
 
@@ -123,6 +138,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
                     context = getApplication(),
                     downloadUrl = apkUrl,
                     fileName = apkName,
+                    expectedSize = release.apkSize,
                     onProgress = { progress, downloaded, total ->
                         _githubDownloadState.value = DownloadState.Downloading(
                             progress = progress,
@@ -146,6 +162,14 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun installDownloadedApk(file: File) {
+        if (!file.exists() || file.length() == 0L) {
+            _githubDownloadState.value = DownloadState.Idle
+            viewModelScope.launch {
+                _uiEvents.emit(UiMessage.Error("Downloaded update file not found. Please tap 'Download & Install' to try again."))
+            }
+            return
+        }
+
         val launched = GitHubUpdateManager.triggerPackageInstall(getApplication(), file)
         if (!launched) {
             viewModelScope.launch {
