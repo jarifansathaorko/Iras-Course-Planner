@@ -21,57 +21,100 @@ object UpdateManager {
 
     suspend fun downloadAndParseCsv(urlString: String): List<CourseEntity> = withContext(Dispatchers.IO) {
         val courses = mutableListOf<CourseEntity>()
-        val url = URL(urlString)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
-        
-        if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-            val reader = BufferedReader(InputStreamReader(connection.inputStream))
+        var currentUrl = urlString.trim()
+        var redirectedConn: HttpURLConnection? = null
+        var redirectCount = 0
+        val maxRedirects = 5
+
+        try {
+            while (redirectCount <= maxRedirects) {
+                val conn = URL(currentUrl).openConnection() as HttpURLConnection
+                conn.apply {
+                    requestMethod = "GET"
+                    setRequestProperty("User-Agent", "CoursePlanner-Android-App")
+                    instanceFollowRedirects = true
+                    connectTimeout = 15000
+                    readTimeout = 30000
+                }
+
+                val responseCode = conn.responseCode
+                if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
+                    responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
+                    responseCode == HttpURLConnection.HTTP_SEE_OTHER ||
+                    responseCode == 307 || responseCode == 308
+                ) {
+                    val location = conn.getHeaderField("Location")
+                    conn.disconnect()
+                    if (location.isNullOrBlank()) {
+                        break
+                    }
+                    currentUrl = location
+                    redirectCount++
+                } else {
+                    redirectedConn = conn
+                    break
+                }
+            }
+
+            val finalConn = redirectedConn ?: return@withContext emptyList()
+            if (finalConn.responseCode != HttpURLConnection.HTTP_OK) {
+                return@withContext emptyList()
+            }
+
+            val reader = BufferedReader(InputStreamReader(finalConn.inputStream, Charsets.UTF_8))
             var isFirstLine = true
-            
-            reader.forEachLine { line ->
-                if (isFirstLine) {
-                    isFirstLine = false // Skip header: Course,Title,Sec,Time,Enrolled,Capacity,Credit,Faculty
+
+            reader.forEachLine { rawLine ->
+                val line = rawLine.removePrefix("\uFEFF").trim()
+                if (line.isBlank()) return@forEachLine
+
+                val delimiter = if (line.contains('\t')) "\t" else ","
+                val tokens = line.split("$delimiter(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)".toRegex())
+                    .map { it.removeSurrounding("\"").trim() }
+
+                if (tokens.isEmpty()) return@forEachLine
+
+                val firstCol = tokens[0]
+                if (isFirstLine || firstCol.equals("Course", ignoreCase = true) || firstCol.equals("Course Code", ignoreCase = true)) {
+                    isFirstLine = false
                     return@forEachLine
                 }
-                
-                // Use a simple split (assuming no commas inside quotes in this specific CSV format)
-                // If there are commas in titles, a proper CSV parser (like openCSV) should be used.
-                // Looking at the data, commas in faculty or titles might exist, so we should be careful.
-                // A basic regex for CSV/TSV splitting considering quotes:
-                val delimiter = if (line.contains('\t')) "\t" else ","
-                val tokens = line.split("$delimiter(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)".toRegex()).map { it.removeSurrounding("\"").trim() }
-                
-                if (tokens.size >= 8) {
-                    val courseCode = tokens[0]
-                    val title = tokens[1]
-                    val section = tokens[2].toIntOrNull() ?: 1
-                    val timeSlot = tokens[3]
-                    val enrolled = tokens[4].toIntOrNull() ?: 0
-                    val capacity = tokens[5].toIntOrNull() ?: 0
-                    val credit = tokens[6].toIntOrNull() ?: 3
-                    val faculty = tokens[7]
-                    
-                    // Generate deterministic ID so saved plans don't break if CSV order changes
-                    val id = "$courseCode-$section".hashCode().absoluteValue
-                    
-                    courses.add(
-                        CourseEntity(
-                            id = id,
-                            courseCode = courseCode,
-                            title = title,
-                            section = section,
-                            timeSlot = timeSlot,
-                            enrolled = enrolled,
-                            capacity = capacity,
-                            credit = credit,
-                            faculty = faculty
+
+                if (tokens.size >= 4 && firstCol.isNotBlank()) {
+                    val courseCode = firstCol
+                    val title = tokens.getOrElse(1) { courseCode }.ifBlank { courseCode }
+                    val section = tokens.getOrElse(2) { "1" }.toIntOrNull() ?: 1
+                    val timeSlot = tokens.getOrElse(3) { "" }.trim()
+                    val enrolled = tokens.getOrElse(4) { "0" }.toIntOrNull() ?: 0
+                    val capacity = tokens.getOrElse(5) { "0" }.toIntOrNull() ?: 0
+                    val credit = tokens.getOrElse(6) { "3" }.toIntOrNull() ?: 3
+                    val faculty = tokens.getOrElse(7) { "TBA" }.ifBlank { "TBA" }
+
+                    if (timeSlot.isNotBlank()) {
+                        val id = "$courseCode-$section".hashCode().absoluteValue
+                        courses.add(
+                            CourseEntity(
+                                id = id,
+                                courseCode = courseCode,
+                                title = title,
+                                section = section,
+                                timeSlot = timeSlot,
+                                enrolled = enrolled,
+                                capacity = capacity,
+                                credit = credit,
+                                faculty = faculty
+                            )
                         )
-                    )
+                    }
                 }
             }
             reader.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            redirectedConn?.disconnect()
         }
+
         return@withContext courses
     }
 }

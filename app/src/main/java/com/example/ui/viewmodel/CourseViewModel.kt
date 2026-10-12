@@ -178,23 +178,48 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    @Volatile
+    private var isDatabaseUpdating = false
+
     private fun listenForUpdates() {
         val prefs = getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
         
         Firebase.firestore.collection("config").document("latest_data")
             .addSnapshotListener { snapshot, e ->
-                if (e != null || snapshot == null) return@addSnapshotListener
+                if (e != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
                 
                 val cloudVersion = snapshot.getLong("version")?.toInt() ?: 0
                 val localVersion = prefs.getInt("local_csv_version", 0)
+                val csvUrl = snapshot.getString("csvUrl")?.trim()
                 
-                if (cloudVersion > localVersion) {
-                    _pendingUpdateCsvUrl = snapshot.getString("csvUrl")
-                    if (_pendingUpdateCsvUrl != null) {
-                        _showUpdateDialog.value = true
-                    }
+                if (cloudVersion > localVersion && !csvUrl.isNullOrBlank()) {
+                    triggerAutomaticDatabaseUpdate(cloudVersion, csvUrl)
                 }
             }
+    }
+
+    private fun triggerAutomaticDatabaseUpdate(cloudVersion: Int, csvUrl: String) {
+        if (isDatabaseUpdating) return
+        isDatabaseUpdating = true
+
+        viewModelScope.launch {
+            try {
+                val newCourses = com.example.data.UpdateManager.downloadAndParseCsv(csvUrl)
+                if (newCourses.isNotEmpty()) {
+                    repository.updateEntireCatalog(newCourses)
+                    
+                    val prefs = getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+                    prefs.edit().putInt("local_csv_version", cloudVersion).apply()
+                    
+                    _uiEvents.emit(UiMessage.Success("Course catalog updated automatically (v$cloudVersion)"))
+                }
+            } catch (e: Exception) {
+                // Fails gracefully without interrupting the user
+                e.printStackTrace()
+            } finally {
+                isDatabaseUpdating = false
+            }
+        }
     }
 
     fun dismissUpdateDialog() {
@@ -204,29 +229,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
     fun confirmUpdate() {
         val url = _pendingUpdateCsvUrl ?: return
         _showUpdateDialog.value = false
-        
-        viewModelScope.launch {
-            try {
-                val newCourses = com.example.data.UpdateManager.downloadAndParseCsv(url)
-                if (newCourses.isNotEmpty()) {
-                    repository.updateEntireCatalog(newCourses)
-                    
-                    // update local version
-                    Firebase.firestore.collection("config").document("latest_data").get()
-                        .addOnSuccessListener { snap ->
-                            val v = snap.getLong("version")?.toInt() ?: 0
-                            getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-                                .edit { putInt("local_csv_version", v) }
-                        }
-                    
-                    _uiEvents.emit(UiMessage.Success("Catalog updated successfully!"))
-                } else {
-                    _uiEvents.emit(UiMessage.Error("Failed to parse updated catalog."))
-                }
-            } catch (e: Exception) {
-                _uiEvents.emit(UiMessage.Error("Network error while updating: ${e.message}"))
-            }
-        }
+        triggerAutomaticDatabaseUpdate(0, url)
     }
 
     // --- Search & Filter States for Tab 1 ---
