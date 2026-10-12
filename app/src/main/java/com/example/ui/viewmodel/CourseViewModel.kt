@@ -181,10 +181,13 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
     @Volatile
     private var isDatabaseUpdating = false
 
+    private var firestoreListener: com.google.firebase.firestore.ListenerRegistration? = null
+
     private fun listenForUpdates() {
         val prefs = getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
         
-        Firebase.firestore.collection("config").document("latest_data")
+        firestoreListener?.remove()
+        firestoreListener = Firebase.firestore.collection("config").document("latest_data")
             .addSnapshotListener { snapshot, e ->
                 if (e != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
                 
@@ -196,6 +199,12 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
                     triggerAutomaticDatabaseUpdate(cloudVersion, csvUrl)
                 }
             }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        firestoreListener?.remove()
+        firestoreListener = null
     }
 
     private fun triggerAutomaticDatabaseUpdate(cloudVersion: Int, csvUrl: String) {
