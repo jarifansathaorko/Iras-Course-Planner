@@ -11,23 +11,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryBlueDark,
-    onPrimary = Color(0xFF0F172A),
-    primaryContainer = Color(0xFF1E3A8A),
-    onPrimaryContainer = Color(0xFFDBEAFE),
-    secondary = SecondaryTealDark,
-    onSecondary = Color(0xFF0F172A),
-    tertiary = TertiaryGoldDark,
-    background = BackgroundDark,
-    onBackground = OnSurfaceDark,
-    surface = SurfaceDark,
-    onSurface = OnSurfaceDark,
-    surfaceVariant = SurfaceVariantDark,
-    onSurfaceVariant = OnSurfaceVariantDark
+private val StitchDarkColorScheme = darkColorScheme(
+    primary = StitchPrimary,
+    onPrimary = StitchOnPrimary,
+    primaryContainer = StitchPrimaryContainer,
+    onPrimaryContainer = StitchOnPrimaryContainer,
+    secondary = StitchSecondary,
+    onSecondary = StitchOnSecondary,
+    secondaryContainer = StitchSecondaryContainer,
+    onSecondaryContainer = Color(0xFFB3B1FF),
+    tertiary = StitchTertiary,
+    onTertiary = StitchOnTertiary,
+    tertiaryContainer = StitchTertiaryContainer,
+    onTertiaryContainer = Color(0xFF00311F),
+    background = StitchBackground,
+    onBackground = StitchTextPrimary,
+    surface = StitchSurface,
+    onSurface = StitchTextPrimary,
+    surfaceVariant = StitchSurfaceContainer,
+    onSurfaceVariant = StitchTextSecondary,
+    outline = StitchOutline,
+    outlineVariant = StitchOutlineVariant,
+    error = ConflictRed,
+    errorContainer = ConflictRedBorder,
+    onError = Color(0xFF690005),
+    onErrorContainer = Color(0xFFFFDAD6)
 )
 
-private val LightColorScheme = lightColorScheme(
+private val StitchLightColorScheme = lightColorScheme(
     primary = PrimaryBlue,
     onPrimary = Color.White,
     primaryContainer = Color(0xFFDBEAFE),
@@ -40,13 +51,15 @@ private val LightColorScheme = lightColorScheme(
     surface = SurfaceLight,
     onSurface = OnSurfaceLight,
     surfaceVariant = SurfaceVariantLight,
-    onSurfaceVariant = OnSurfaceVariantLight
+    onSurfaceVariant = OnSurfaceVariantLight,
+    outline = Color(0xFFCBD5E1),
+    error = Color(0xFFDC2626)
 )
 
 @Composable
 fun MyApplicationTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false, // Use our handcrafted university theme for consistent high contrast
+    darkTheme: Boolean = true, // Default to Stitch sleek dark mode
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
@@ -54,8 +67,8 @@ fun MyApplicationTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> StitchDarkColorScheme
+        else -> StitchLightColorScheme
     }
 
     MaterialTheme(

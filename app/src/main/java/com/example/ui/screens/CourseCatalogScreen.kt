@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.ui.platform.LocalContext
-
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,31 +28,29 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SystemUpdate
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -67,7 +63,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -81,8 +80,21 @@ import com.example.domain.ScheduleHelper
 import com.example.ui.theme.ConflictRed
 import com.example.ui.theme.ConflictRedBg
 import com.example.ui.theme.ConflictRedBorder
-import com.example.ui.theme.SelectedBlueBg
-import com.example.ui.theme.SelectedBlueBorder
+import com.example.ui.theme.StitchBackground
+import com.example.ui.theme.StitchOutline
+import com.example.ui.theme.StitchOutlineVariant
+import com.example.ui.theme.StitchPrimary
+import com.example.ui.theme.StitchPrimaryContainer
+import com.example.ui.theme.StitchSecondary
+import com.example.ui.theme.StitchSecondaryContainer
+import com.example.ui.theme.StitchSurfaceContainer
+import com.example.ui.theme.StitchSurfaceHigh
+import com.example.ui.theme.StitchSurfaceHighest
+import com.example.ui.theme.StitchSurfaceLow
+import com.example.ui.theme.StitchTertiary
+import com.example.ui.theme.StitchTextMuted
+import com.example.ui.theme.StitchTextPrimary
+import com.example.ui.theme.StitchTextSecondary
 import com.example.ui.theme.SuccessGreen
 import com.example.ui.theme.SuccessGreenBg
 import com.example.ui.theme.SuccessGreenBorder
@@ -115,7 +127,6 @@ fun CourseCatalogScreen(
     var showSectionMenu by remember { mutableStateOf(false) }
     var showAdvancedPortalFilters by remember { mutableStateOf(false) }
 
-    // Available sections for the currently chosen course code in dropdown
     val availableSectionsForDropdown = remember(selectedCourseCodeDropdown, courses) {
         if (selectedCourseCodeDropdown.isNullOrBlank()) emptyList()
         else courses.filter { it.courseCode.equals(selectedCourseCodeDropdown, ignoreCase = true) }
@@ -127,65 +138,95 @@ fun CourseCatalogScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(StitchBackground)
     ) {
-        // --- Top Search Header ---
+        // --- Top App Bar & Search Container (Matching Stitch 02_browse-and-search.html) ---
+        val outlineColor = StitchOutline
         Surface(
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 2.dp,
-            modifier = Modifier.fillMaxWidth()
+            color = StitchSurfaceLow,
+            tonalElevation = 0.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .drawBehind {
+                    drawLine(
+                        color = outlineColor,
+                        start = Offset(0f, size.height),
+                        end = Offset(size.width, size.height),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                }
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                // Branded App Logo & Name Header
+                // Branded App Bar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_iras_logo),
-                        contentDescription = "Iras Course Planner Logo",
+                    Box(
                         modifier = Modifier
-                            .size(44.dp)
+                            .size(38.dp)
                             .clip(CircleShape)
-                            .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                    )
+                            .background(StitchSurfaceContainer)
+                            .border(1.5.dp, StitchPrimaryContainer.copy(alpha = 0.6f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_iras_logo),
+                            contentDescription = "IRAS Logo",
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.width(12.dp))
+
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "Iras Course Planner",
-                            style = MaterialTheme.typography.titleLarge.copy(
+                            style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
+                                fontSize = 16.sp,
+                                letterSpacing = (-0.01).sp
                             ),
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = StitchTextPrimary
                         )
                         Text(
-                            text = "University Advising & Fast Conflict Detector",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = "Advising & Conflict Detector",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            color = StitchTextSecondary
                         )
                     }
+
+                    // App Update Icon Button
                     IconButton(
                         onClick = onOpenAppUpdate,
                         modifier = Modifier
                             .testTag("btn_check_github_update")
-                            .size(40.dp)
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(StitchSurfaceContainer)
+                            .border(1.dp, StitchOutline, RoundedCornerShape(10.dp))
                     ) {
                         Icon(
                             imageVector = Icons.Default.SystemUpdate,
                             contentDescription = "Check for Updates",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = StitchPrimary,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
 
-                // Primary Search Bar
+                // Search Bar (Stitch Sleek Input Box)
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
@@ -195,179 +236,243 @@ fun CourseCatalogScreen(
                     placeholder = {
                         Text(
                             "Search course e.g. 'CSE100' or 'CSE100 2'",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.5.sp),
+                            color = StitchTextMuted
                         )
                     },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = StitchTextSecondary,
+                            modifier = Modifier.size(20.dp)
                         )
                     },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty() || selectedCourseCodeDropdown != null) {
                             IconButton(onClick = onClearFilters) {
                                 Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Clear Search"
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Clear Search",
+                                    tint = StitchTextSecondary,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
                     },
                     singleLine = true,
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                        focusedContainerColor = StitchSurfaceContainer,
+                        unfocusedContainerColor = StitchSurfaceLow,
+                        focusedBorderColor = StitchPrimaryContainer,
+                        unfocusedBorderColor = StitchOutline,
+                        focusedTextColor = StitchTextPrimary,
+                        unfocusedTextColor = StitchTextPrimary,
+                        cursorColor = StitchPrimary
                     )
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Toggle Portal-style Course Code & Section Dropdowns
+                // Category & Department Filter Strip (Pill Row with Tune Icon)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Filter by Course & Section Dropdown",
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { showAdvancedPortalFilters = !showAdvancedPortalFilters }
-                    )
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        DEPARTMENTS.forEach { dept ->
+                            val isSelected = selectedDept == dept
+                            val pillBg = if (isSelected) StitchPrimaryContainer else StitchSurfaceLow
+                            val pillBorder = if (isSelected) StitchPrimaryContainer else StitchOutline
+                            val pillText = if (isSelected) Color.White else StitchTextSecondary
+
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(pillBg)
+                                    .border(1.dp, pillBorder, RoundedCornerShape(20.dp))
+                                    .clickable { onDeptSelect(dept) }
+                                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                ) {
+                                    if (isSelected) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(5.dp)
+                                                .clip(CircleShape)
+                                                .background(Color.White)
+                                        )
+                                    }
+                                    Text(
+                                        text = dept,
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            fontSize = 11.5.sp
+                                        ),
+                                        color = pillText
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    // Tune / Portal Filters Toggle Button
                     IconButton(
                         onClick = { showAdvancedPortalFilters = !showAdvancedPortalFilters },
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (showAdvancedPortalFilters) StitchPrimaryContainer.copy(alpha = 0.2f) else StitchSurfaceLow)
+                            .border(1.dp, if (showAdvancedPortalFilters) StitchPrimaryContainer else StitchOutline, RoundedCornerShape(10.dp))
                     ) {
                         Icon(
-                            imageVector = if (showAdvancedPortalFilters) Icons.Default.KeyboardArrowDown else Icons.Default.FilterList,
-                            contentDescription = "Toggle Dropdowns",
-                            tint = MaterialTheme.colorScheme.primary
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = "Toggle Portal Filters",
+                            tint = if (showAdvancedPortalFilters) StitchPrimary else StitchTextSecondary,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
 
-                // Portal Dropdowns (Course Code & Section)
+                // Advanced Portal Dropdowns (Course Code & Section)
                 AnimatedVisibility(visible = showAdvancedPortalFilters) {
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            .padding(top = 10.dp)
                     ) {
-                        // Course Code Selector
-                        Box(modifier = Modifier.weight(1.3f)) {
-                            OutlinedButton(
-                                onClick = { showCourseCodeMenu = true },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .testTag("course_code_dropdown_btn"),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Text(
-                                    text = selectedCourseCodeDropdown ?: "Select Code",
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = null)
-                            }
-                            DropdownMenu(
-                                expanded = showCourseCodeMenu,
-                                onDismissRequest = { showCourseCodeMenu = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("All Courses") },
-                                    onClick = {
-                                        onCourseCodeDropdownSelect(null)
-                                        showCourseCodeMenu = false
-                                    }
-                                )
-                                allCourseCodes.forEach { code ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            // Course Code Selector
+                            Box(modifier = Modifier.weight(1.3f)) {
+                                OutlinedButton(
+                                    onClick = { showCourseCodeMenu = true },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag("course_code_dropdown_btn"),
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        containerColor = StitchSurfaceContainer,
+                                        contentColor = StitchTextPrimary
+                                    ),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, StitchOutline)
+                                ) {
+                                    Text(
+                                        text = selectedCourseCodeDropdown ?: "Select Code",
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        fontSize = 12.sp,
+                                        color = StitchTextPrimary
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowDown,
+                                        contentDescription = null,
+                                        tint = StitchTextSecondary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = showCourseCodeMenu,
+                                    onDismissRequest = { showCourseCodeMenu = false },
+                                    modifier = Modifier.background(StitchSurfaceContainer)
+                                ) {
                                     DropdownMenuItem(
-                                        text = { Text(code) },
+                                        text = { Text("All Courses", color = StitchTextPrimary) },
                                         onClick = {
-                                            onCourseCodeDropdownSelect(code)
+                                            onCourseCodeDropdownSelect(null)
                                             showCourseCodeMenu = false
                                         }
                                     )
+                                    allCourseCodes.forEach { code ->
+                                        DropdownMenuItem(
+                                            text = { Text(code, color = StitchTextPrimary) },
+                                            onClick = {
+                                                onCourseCodeDropdownSelect(code)
+                                                showCourseCodeMenu = false
+                                            }
+                                        )
+                                    }
                                 }
                             }
-                        }
 
-                        // Section Selector
-                        Box(modifier = Modifier.weight(1f)) {
-                            OutlinedButton(
-                                onClick = { showSectionMenu = true },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .testTag("section_dropdown_btn"),
-                                enabled = selectedCourseCodeDropdown != null,
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Text(
-                                    text = if (selectedSectionDropdown != null) "Sec $selectedSectionDropdown" else "All Sec",
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = null)
-                            }
-                            DropdownMenu(
-                                expanded = showSectionMenu,
-                                onDismissRequest = { showSectionMenu = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("All Sections") },
-                                    onClick = {
-                                        onSectionDropdownSelect(null)
-                                        showSectionMenu = false
-                                    }
-                                )
-                                availableSectionsForDropdown.forEach { sec ->
-                                    val secCourse = courses.find { it.courseCode.equals(selectedCourseCodeDropdown, ignoreCase = true) && it.section == sec }
-                                    val enrolledInfo = if (secCourse != null) " (${secCourse.enrolled}/${secCourse.capacity})" else ""
+                            // Section Selector
+                            Box(modifier = Modifier.weight(1f)) {
+                                OutlinedButton(
+                                    onClick = { showSectionMenu = true },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag("section_dropdown_btn"),
+                                    enabled = selectedCourseCodeDropdown != null,
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        containerColor = StitchSurfaceContainer,
+                                        contentColor = StitchTextPrimary
+                                    ),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, StitchOutline)
+                                ) {
+                                    Text(
+                                        text = if (selectedSectionDropdown != null) "Sec $selectedSectionDropdown" else "All Sec",
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        fontSize = 12.sp,
+                                        color = StitchTextPrimary
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowDown,
+                                        contentDescription = null,
+                                        tint = StitchTextSecondary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = showSectionMenu,
+                                    onDismissRequest = { showSectionMenu = false },
+                                    modifier = Modifier.background(StitchSurfaceContainer)
+                                ) {
                                     DropdownMenuItem(
-                                        text = { Text("Section $sec$enrolledInfo") },
+                                        text = { Text("All Sections", color = StitchTextPrimary) },
                                         onClick = {
-                                            onSectionDropdownSelect(sec)
+                                            onSectionDropdownSelect(null)
                                             showSectionMenu = false
                                         }
                                     )
+                                    availableSectionsForDropdown.forEach { sec ->
+                                        val secCourse = courses.find { it.courseCode.equals(selectedCourseCodeDropdown, ignoreCase = true) && it.section == sec }
+                                        val enrolledInfo = if (secCourse != null) " (${secCourse.enrolled}/${secCourse.capacity})" else ""
+                                        DropdownMenuItem(
+                                            text = { Text("Section $sec$enrolledInfo", color = StitchTextPrimary) },
+                                            onClick = {
+                                                onSectionDropdownSelect(sec)
+                                                showSectionMenu = false
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-
-                // Department Horizontal Chips
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp)
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    DEPARTMENTS.forEach { dept ->
-                        val isSelected = selectedDept == dept
-                        FilterChip(
-                            selected = isSelected,
-                            onClick = { onDeptSelect(dept) },
-                            label = { Text(dept, style = MaterialTheme.typography.labelSmall) },
-                            shape = RoundedCornerShape(20.dp),
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                            )
-                        )
                     }
                 }
             }
         }
 
-        // Search Results Bar
+        // --- Results Summary Bar ---
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -375,15 +480,16 @@ fun CourseCatalogScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "${courses.size} Course Sections Found",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 12.5.sp
+                    ),
+                    color = StitchTextSecondary
                 )
-                
+
                 val isFiltered = searchQuery.isNotEmpty() || selectedDept != "ALL" || selectedCourseCodeDropdown != null || selectedSectionDropdown != null
                 if (isFiltered && courses.isNotEmpty()) {
                     val context = LocalContext.current
@@ -407,13 +513,14 @@ fun CourseCatalogScreen(
                             )
                         },
                         modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(32.dp)
+                            .padding(start = 6.dp)
+                            .size(28.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Share,
                             contentDescription = "Share Course List",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = StitchPrimary,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
@@ -422,14 +529,15 @@ fun CourseCatalogScreen(
             if (selectedCourses.isNotEmpty()) {
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer)
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(StitchPrimaryContainer.copy(alpha = 0.16f))
+                        .border(1.dp, StitchPrimaryContainer.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = "${selectedCourses.size} Selected (${selectedCourses.sumOf { it.credit }} Cr)",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = StitchPrimary
                     )
                 }
             }
@@ -450,42 +558,46 @@ fun CourseCatalogScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.MenuBook,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.outline,
-                        modifier = Modifier.size(64.dp)
+                        tint = StitchTextMuted,
+                        modifier = Modifier.size(56.dp)
                     )
                     Text(
-                        text = "No matching courses found",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface
+                        text = "No course sections found",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = StitchTextPrimary
                     )
                     Text(
-                        text = "Try searching by course code (e.g. CSE100) or check department filters.",
+                        text = "Try refining your search terms or selecting another department filter above.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        color = StitchTextSecondary,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
-                    Button(
+                    OutlinedButton(
                         onClick = onClearFilters,
-                        modifier = Modifier.padding(top = 8.dp)
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = StitchSurfaceContainer,
+                            contentColor = StitchPrimary
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, StitchOutline)
                     ) {
-                        Text("Reset Search")
+                        Text("Reset Filters")
                     }
                 }
             }
         } else {
-            val selectedIds = remember(selectedCourses) {
-                selectedCourses.mapTo(HashSet(selectedCourses.size)) { it.id }
-            }
-
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 96.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(courses, key = { it.id }) { course ->
-                    val isSelected = course.id in selectedIds
+                items(
+                    items = courses,
+                    key = { it.id }
+                ) { course ->
+                    val isSelected = selectedCourses.any { it.id == course.id }
                     val conflict = if (isSelected) null else ScheduleHelper.findConflict(course, selectedCourses)
-                    val parsedTime = ScheduleHelper.parse(course.timeSlot)
+                    val parsedTime = remember(course.timeSlot) { ScheduleHelper.parse(course.timeSlot) }
 
                     CourseCatalogCard(
                         course = course,
@@ -508,30 +620,30 @@ fun CourseCatalogCard(
     conflict: ConflictResult?,
     onSelectClick: () -> Unit
 ) {
-    val isSameCourseConflict = conflict is com.example.domain.ConflictResult.SameCourse
-    
+    val isSameCourseConflict = conflict is ConflictResult.SameCourse
+
     val cardBorderColor = when {
-        isSelected -> MaterialTheme.colorScheme.primary
-        conflict != null -> MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
-        else -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+        isSelected -> StitchTertiary
+        conflict != null -> ConflictRedBorder
+        else -> StitchOutline
     }
 
     val cardBgColor = when {
-        isSelected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
-        else -> MaterialTheme.colorScheme.surface
+        isSelected -> StitchSurfaceContainer
+        else -> StitchSurfaceContainer
     }
 
     Card(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = cardBgColor),
-        border = androidx.compose.foundation.BorderStroke(1.2.dp, cardBorderColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 2.dp else 1.dp),
+        border = androidx.compose.foundation.BorderStroke(if (isSelected) 1.5.dp else 1.dp, cardBorderColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = Modifier
             .fillMaxWidth()
             .testTag("course_card_${course.id}")
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Header: Code, Section & Credits
+        Column(modifier = Modifier.padding(14.dp)) {
+            // Header Row: Course Code, Section Pill & Status/Credit Tag
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -541,37 +653,72 @@ fun CourseCatalogCard(
                     Text(
                         text = course.courseCode,
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 18.sp
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                            letterSpacing = (-0.02).sp
                         ),
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = StitchTextPrimary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(StitchSurfaceHigh)
+                            .padding(horizontal = 7.dp, vertical = 2.5.dp)
                     ) {
                         Text(
-                            text = "Sec ${course.section}",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.primary
+                            text = "SEC ${course.section}",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 11.sp
+                            ),
+                            color = StitchTextPrimary
                         )
                     }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
-                ) {
-                    Text(
-                        text = "${course.credit} Credits",
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
+                // Status or Credit Badge
+                if (isSelected) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(SuccessGreenBg)
+                            .border(1.dp, SuccessGreenBorder, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 7.dp, vertical = 2.5.dp)
+                    ) {
+                        Text(
+                            text = "ENROLLED",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 10.sp),
+                            color = StitchTertiary
+                        )
+                    }
+                } else if (conflict != null) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(ConflictRedBg)
+                            .border(1.dp, ConflictRedBorder, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 7.dp, vertical = 2.5.dp)
+                    ) {
+                        Text(
+                            text = if (isSameCourseConflict) "DIFF SEC" else "CONFLICT",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 10.sp),
+                            color = ConflictRed
+                        )
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(StitchSecondaryContainer.copy(alpha = 0.25f))
+                            .padding(horizontal = 7.dp, vertical = 2.5.dp)
+                    ) {
+                        Text(
+                            text = "${course.credit} Cr",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontSize = 11.sp),
+                            color = StitchSecondary
+                        )
+                    }
                 }
             }
 
@@ -580,39 +727,44 @@ fun CourseCatalogCard(
             // Course Title
             Text(
                 text = course.title,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.5.sp),
+                color = StitchTextSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Time Slot Badge
+            // Schedule & Room Banner
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    .background(StitchSurfaceLow)
+                    .border(1.dp, StitchOutline.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Schedule,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(16.dp)
+                    tint = StitchPrimary,
+                    modifier = Modifier.size(15.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = parsedTime.formattedTime,
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 12.sp
+                    ),
+                    color = StitchTextPrimary
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = "Raw: ${course.timeSlot}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline,
-                    fontSize = 10.sp
+                    text = course.timeSlot,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
+                    color = StitchTextMuted
                 )
             }
 
@@ -623,7 +775,7 @@ fun CourseCatalogCard(
             val isAlmostFull = seatsLeft in 1..5
             val occupancyFraction = if (course.capacity > 0) (course.enrolled.toFloat() / course.capacity.toFloat()).coerceIn(0f, 1f) else 0f
 
-            // Faculty & Enrolled Info
+            // Faculty & Enrolled Info Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -636,94 +788,57 @@ fun CourseCatalogCard(
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(16.dp)
+                        tint = StitchTextSecondary,
+                        modifier = Modifier.size(15.dp)
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         text = if (course.faculty.isNotBlank()) course.faculty else "TBA",
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                        color = StitchTextSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
 
-                // Enrolled / Capacity Counter
+                // Seats Counter
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.People,
                         contentDescription = null,
-                        tint = if (isFull) ConflictRed else MaterialTheme.colorScheme.outline,
-                        modifier = Modifier.size(15.dp)
+                        tint = if (isFull) ConflictRed else StitchTextMuted,
+                        modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "${course.enrolled} / ${course.capacity} Enrolled",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = if (isFull) FontWeight.Bold else FontWeight.Medium
+                        text = "${course.enrolled}/${course.capacity} Seats",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = if (isFull) FontWeight.Bold else FontWeight.Medium,
+                            fontSize = 11.5.sp
                         ),
-                        color = if (isFull) ConflictRed else MaterialTheme.colorScheme.onSurface
+                        color = if (isFull) ConflictRed else StitchTextSecondary
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Enrollment Status Badge & Progress Bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(
-                        when {
-                            isFull -> ConflictRed.copy(alpha = 0.1f)
-                            isAlmostFull -> Color(0xFFFF9800).copy(alpha = 0.12f)
-                            else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
-                        }
-                    )
-                    .padding(horizontal = 10.dp, vertical = 5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = when {
-                        isFull -> "Section Full"
-                        isAlmostFull -> "Only $seatsLeft seats left!"
-                        else -> "$seatsLeft seats available"
-                    },
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                    color = when {
-                        isFull -> ConflictRed
-                        isAlmostFull -> Color(0xFFE65100)
-                        else -> SuccessGreen
-                    }
-                )
-
-                Text(
-                    text = "${(occupancyFraction * 100).toInt()}% Filled",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
+            // Capacity Progress Bar
             LinearProgressIndicator(
                 progress = { occupancyFraction },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp)
+                    .height(3.dp)
                     .clip(RoundedCornerShape(2.dp)),
                 color = when {
                     isFull -> ConflictRed
-                    isAlmostFull -> Color(0xFFFF9800)
-                    else -> MaterialTheme.colorScheme.primary
+                    isAlmostFull -> Color(0xFFF59E0B)
+                    else -> StitchTertiary
                 },
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                trackColor = StitchSurfaceHigh
             )
 
-            // Conflict / Status Alert Strip if applicable
+            // Conflict Warning Banner
             if (conflict != null) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(
@@ -731,23 +846,23 @@ fun CourseCatalogCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
-                        .background(ConflictRed.copy(alpha = 0.08f))
-                        .border(1.dp, ConflictRed.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                        .background(ConflictRedBg)
+                        .border(1.dp, ConflictRedBorder, RoundedCornerShape(8.dp))
                         .padding(horizontal = 8.dp, vertical = 6.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Warning,
                         contentDescription = null,
                         tint = ConflictRed,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(15.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = when (conflict) {
-                            is ConflictResult.SameCourse -> "Already taking ${course.courseCode} (Sec ${conflict.existing.section})"
+                            is ConflictResult.SameCourse -> "Already enrolled in Sec ${conflict.existing.section}"
                             is ConflictResult.TimeOverlap -> "Clashes with ${conflict.existing.courseCode} (Sec ${conflict.existing.section})"
                         },
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontSize = 11.sp),
                         color = ConflictRed,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -755,9 +870,9 @@ fun CourseCatalogCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Selection Button
+            // Action Button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -766,52 +881,54 @@ fun CourseCatalogCard(
                     Button(
                         onClick = onSelectClick,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            containerColor = SuccessGreenBg,
+                            contentColor = StitchTertiary
                         ),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, SuccessGreenBorder),
                         modifier = Modifier.testTag("select_course_${course.id}")
                     ) {
-                        Icon(imageVector = Icons.Default.Check, contentDescription = "Deselect", modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Selected")
+                        Icon(imageVector = Icons.Default.Check, contentDescription = "Enrolled", modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text("Selected", fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
                 } else if (isFull) {
                     Button(
-                        onClick = { /* Disabled: Course is 100% full */ },
+                        onClick = { /* Full */ },
                         enabled = false,
                         colors = ButtonDefaults.buttonColors(
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            disabledContentColor = MaterialTheme.colorScheme.outline
+                            disabledContainerColor = StitchSurfaceHigh,
+                            disabledContentColor = StitchTextMuted
                         ),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.testTag("select_course_${course.id}")
                     ) {
-                        Icon(imageVector = Icons.Default.Block, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Section Full (Closed)")
+                        Icon(imageVector = Icons.Default.Block, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text("Section Closed", fontSize = 12.sp)
                     }
                 } else {
                     Button(
                         onClick = onSelectClick,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = when {
-                                isSameCourseConflict -> MaterialTheme.colorScheme.secondary
-                                conflict != null -> MaterialTheme.colorScheme.error
-                                else -> MaterialTheme.colorScheme.primary
-                            }
+                                isSameCourseConflict -> StitchSecondaryContainer
+                                conflict != null -> ConflictRedBorder
+                                else -> StitchPrimaryContainer
+                            },
+                            contentColor = Color.White
                         ),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.testTag("select_course_${course.id}")
                     ) {
                         if (conflict != null) {
-                            val btnIcon = if (isSameCourseConflict) androidx.compose.material.icons.Icons.Default.Info else androidx.compose.material.icons.Icons.Default.Warning
-                            val btnText = if (isSameCourseConflict) "Switch to Sec ${course.section}" else "Resolve & Select"
-                            Icon(imageVector = btnIcon, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(btnText)
+                            val btnIcon = if (isSameCourseConflict) Icons.Default.Info else Icons.Default.Warning
+                            val btnText = if (isSameCourseConflict) "Switch to Sec ${course.section}" else "Resolve Conflict"
+                            Icon(imageVector = btnIcon, contentDescription = null, modifier = Modifier.size(15.dp))
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(btnText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         } else {
-                            Text("+ Select Course")
+                            Text("+ Select Section", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }

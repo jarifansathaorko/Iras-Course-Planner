@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Save Schedule to Plans - Iras Course Planner</title>
+<!-- Google Fonts: Inter & Geist -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN with forms and container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            },
+            surface: {
+              DEFAULT: '#0d141d',
+              dim: '#090e15',
+              card: '#151e2b',
+              elevated: '#1a2434',
+              modal: '#161c24',
+              input: '#121820',
+              border: 'rgba(255, 255, 255, 0.08)',
+              borderFocus: '#3b82f6',
+            }
+          },
+          boxShadow: {
+            modal: '0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.07)',
+            activeCard: '0 0 0 1.5px #3b82f6, 0 4px 20px -2px rgba(59, 130, 246, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Styles for Scrollbars and Refined Accents -->
+<style data-purpose="custom-styling">
+    body {
+      font-family: 'Geist', sans-serif;
+      background-color: #05080c;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Native-like input outline offset */
+    .field-fieldset {
+      position: relative;
+    }
+    .field-fieldset label {
+      position: absolute;
+      top: -10px;
+      left: 12px;
+      padding: 0 6px;
+      background: #161c24;
+      font-size: 11px;
+      font-weight: 500;
+      color: #94a3b8;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-0 sm:p-4 text-slate-100 selection:bg-blue-600 selection:text-white">
+<!-- BEGIN: MobileDeviceContainer -->
+<!-- Container replicating modern mobile viewport (iPhone 15 / 390px) -->
+<div class="relative w-full max-w-[400px] h-[844px] max-h-[100dvh] bg-[#0d141d] overflow-hidden sm:rounded-[44px] shadow-2xl flex flex-col border border-slate-800/60" data-purpose="mobile-viewport">
+<!-- BEGIN: iOSStatusBar -->
+<div class="w-full pt-3 px-7 pb-2 flex justify-between items-center text-xs text-slate-300 font-medium select-none z-10 shrink-0" data-purpose="status-bar">
+<span>6:08</span>
+<div class="flex items-center space-x-1.5 text-[11px]">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.23 19.64 10.56 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 2c3.87 0 7 3.13 7 7 0 1.62-.56 3.11-1.5 4.31l-9.81-9.81C8.89 5.56 10.38 5 12 5zm-7 7c0-1.62.56-3.11 1.5-4.31l9.81 9.81C15.11 18.44 13.62 19 12 19c-3.87 0-7-3.13-7-7z"></path></svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0 0 12 4z"></path></svg>
+<div class="w-5 h-2.5 border border-slate-300 rounded-sm p-0.5 flex items-center">
+<div class="h-full w-full bg-slate-300 rounded-[1px]"></div>
+</div>
+</div>
+</div>
+<!-- END: iOSStatusBar -->
+<!-- BEGIN: BackgroundUnderlyingContent -->
+<!-- Dimmed & softly blurred background representing the registered courses list screen -->
+<div aria-hidden="true" class="flex-1 px-4 py-2 flex flex-col opacity-25 filter blur-[2px] pointer-events-none select-none transition-all duration-300">
+<!-- App Header Mock -->
+<div class="flex items-center justify-between pb-3 border-b border-slate-800/80">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700/60 flex items-center justify-center text-blue-400 font-bold">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+</div>
+<div>
+<h1 class="text-sm font-semibold text-slate-100 tracking-tight">Iras Course Planner</h1>
+<p class="text-[11px] text-slate-400">Advising &amp; Conflict Detector</p>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700"></div>
+</div>
+<!-- Section Title Mock -->
+<div class="mt-4 mb-3 flex items-center justify-between">
+<div>
+<h2 class="text-lg font-bold text-white">Selected Courses</h2>
+<span class="text-xs text-blue-400">1 Course • 3 Credits Selected</span>
+</div>
+<span class="text-xs text-rose-400 font-medium">Clear All</span>
+</div>
+<!-- Course Card Mock -->
+<div class="mt-2 p-4 rounded-2xl bg-surface-card border border-slate-700/60">
+<div class="flex justify-between items-center mb-1">
+<div class="flex items-center gap-2">
+<span class="text-base font-bold text-white">CSE213</span>
+<span class="px-2 py-0.5 rounded text-[10px] bg-blue-500/20 text-blue-400 font-medium">Sec 5</span>
+</div>
+<span class="text-xs text-slate-400">3 Credits</span>
+</div>
+<p class="text-xs text-slate-300 mb-3">Object Oriented Programming</p>
+<div class="p-2.5 rounded-lg bg-blue-950/40 text-blue-300 text-xs flex items-center gap-2 mb-3">
+<span>🕒 Mon, Wed 08:00 AM - 09:30 AM</span>
+</div>
+<div class="text-xs text-slate-400">MR Md. Aquib Azmain</div>
+</div>
+</div>
+<!-- END: BackgroundUnderlyingContent -->
+<!-- BEGIN: BackdropOverlay -->
+<div class="absolute inset-0 bg-black/65 backdrop-blur-[3px] z-20 flex flex-col justify-end sm:justify-center p-3 sm:p-4 animate-in fade-in duration-200" data-purpose="dialog-backdrop">
+<!-- BEGIN: SaveScheduleModal -->
+<section aria-labelledby="modal-title" aria-modal="true" class="w-full bg-[#161c24] border border-white/[0.08] rounded-[28px] p-5 shadow-modal flex flex-col space-y-4 max-h-[92%] overflow-y-auto" data-purpose="save-schedule-dialog" role="dialog">
+<!-- Modal Top Handle (Sheet indicator on mobile) -->
+<div class="w-10 h-1 bg-slate-600/60 rounded-full mx-auto -mt-1 mb-1 sm:hidden"></div>
+<!-- BEGIN: ModalHeader -->
+<header class="flex items-start justify-between">
+<div class="space-y-0.5">
+<h2 class="text-[19px] font-bold tracking-tight text-white flex items-center gap-2" id="modal-title">
+              Save Schedule to Plans
+            </h2>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-500/15 text-blue-400 border border-blue-500/20">
+                1 Courses • 3 Credits
+              </span>
+</div>
+</div>
+<!-- Close Button -->
+<button aria-label="Close dialog" class="w-8 h-8 rounded-full bg-slate-800/70 hover:bg-slate-700/80 active:scale-95 transition text-slate-400 hover:text-white flex items-center justify-center border border-white/5" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</header>
+<!-- END: ModalHeader -->
+<!-- Instructional Guidance -->
+<p class="text-xs text-slate-400 font-normal leading-relaxed -mt-1">
+          Select which plan slot to save your current course schedule to:
+        </p>
+<!-- BEGIN: PlanSlotsList -->
+<!-- Radio Group for choosing slots Plan 1 through Plan 4 -->
+<div aria-label="Plan Slot Options" class="space-y-2.5" data-purpose="plan-slot-selection" role="radiogroup">
+<!-- Plan 1: Active / Selected Slot -->
+<label class="relative flex items-center p-3.5 rounded-2xl cursor-pointer bg-gradient-to-r from-blue-950/60 to-blue-900/30 border border-blue-500/80 shadow-[0_0_15px_rgba(37,99,235,0.18)] transition-all group">
+<input checked="" class="sr-only" name="plan_slot" type="radio" value="1"/>
+<!-- Custom Radio Button State (Active) -->
+<div class="w-5 h-5 rounded-full border-2 border-blue-400 flex items-center justify-center mr-3.5 shrink-0 bg-blue-950/60">
+<div class="w-2.5 h-2.5 bg-blue-400 rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="text-sm font-semibold text-white tracking-tight group-hover:text-blue-200 transition">Plan 1</span>
+<span class="text-[10px] uppercase font-semibold text-blue-400 tracking-wider">Active</span>
+</div>
+<p class="text-[12px] text-slate-400 font-normal">Empty slot</p>
+</div>
+</label>
+<!-- Plan 2: Inactive Slot -->
+<label class="relative flex items-center p-3.5 rounded-2xl cursor-pointer bg-[#1c2430]/70 hover:bg-[#202937] border border-white/[0.06] hover:border-slate-700 transition group">
+<input class="sr-only" name="plan_slot" type="radio" value="2"/>
+<!-- Custom Radio Button State (Unselected) -->
+<div class="w-5 h-5 rounded-full border border-slate-600 group-hover:border-slate-500 flex items-center justify-center mr-3.5 shrink-0 transition">
+<div class="w-2.5 h-2.5 bg-transparent rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-slate-200 tracking-tight group-hover:text-white">Plan 2</span>
+</div>
+<p class="text-[12px] text-slate-400 font-normal">Empty slot</p>
+</div>
+</label>
+<!-- Plan 3: Inactive Slot -->
+<label class="relative flex items-center p-3.5 rounded-2xl cursor-pointer bg-[#1c2430]/70 hover:bg-[#202937] border border-white/[0.06] hover:border-slate-700 transition group">
+<input class="sr-only" name="plan_slot" type="radio" value="3"/>
+<!-- Custom Radio Button State (Unselected) -->
+<div class="w-5 h-5 rounded-full border border-slate-600 group-hover:border-slate-500 flex items-center justify-center mr-3.5 shrink-0 transition">
+<div class="w-2.5 h-2.5 bg-transparent rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-slate-200 tracking-tight group-hover:text-white">Plan 3</span>
+</div>
+<p class="text-[12px] text-slate-400 font-normal">Empty slot</p>
+</div>
+</label>
+<!-- Plan 4: Inactive Slot -->
+<label class="relative flex items-center p-3.5 rounded-2xl cursor-pointer bg-[#1c2430]/70 hover:bg-[#202937] border border-white/[0.06] hover:border-slate-700 transition group">
+<input class="sr-only" name="plan_slot" type="radio" value="4"/>
+<!-- Custom Radio Button State (Unselected) -->
+<div class="w-5 h-5 rounded-full border border-slate-600 group-hover:border-slate-500 flex items-center justify-center mr-3.5 shrink-0 transition">
+<div class="w-2.5 h-2.5 bg-transparent rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-slate-200 tracking-tight group-hover:text-white">Plan 4</span>
+</div>
+<p class="text-[12px] text-slate-400 font-normal">Empty slot</p>
+</div>
+</label>
+</div>
+<!-- END: PlanSlotsList -->
+<!-- BEGIN: PlanLabelInput -->
+<!-- Floating-badge outlined text field for customizing label -->
+<div class="pt-1" data-purpose="plan-label-wrapper">
+<div class="field-fieldset relative rounded-xl border border-slate-700/80 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-[#121720]/80">
+<label for="plan-name-input">Plan Label</label>
+<input class="w-full bg-transparent px-3.5 pt-3.5 pb-2.5 text-sm font-medium text-white focus:outline-none border-0" id="plan-name-input" placeholder="e.g. Dream Schedule, Option B" type="text" value="Plan 1"/>
+</div>
+<p class="text-[11px] text-slate-500 mt-1.5 ml-1">Give this semester plan an identifiable name.</p>
+</div>
+<!-- END: PlanLabelInput -->
+<!-- BEGIN: DialogActionButtons -->
+<!-- Footer action triggers -->
+<footer class="pt-2 flex items-center justify-end gap-3" data-purpose="dialog-actions">
+<!-- Cancel Button -->
+<button class="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 active:scale-98 transition" type="button">
+            Cancel
+          </button>
+<!-- Confirm & Save Button -->
+<button class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-sm font-semibold flex items-center gap-2 shadow-lg shadow-blue-600/30 active:scale-98 transition" type="button">
+<svg class="w-4 h-4 fill-current shrink-0" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path>
+</svg>
+<span>Confirm &amp; Save</span>
+</button>
+</footer>
+<!-- END: DialogActionButtons -->
+</section>
+<!-- END: SaveScheduleModal -->
+</div>
+<!-- END: BackdropOverlay -->
+<!-- BEGIN: MobileNavigationBar -->
+<!-- Fixed bottom navigation bar from the app layout -->
+<nav class="mt-auto w-full bg-[#0a0f16] border-t border-slate-800/80 px-4 pt-2.5 pb-4 flex justify-around items-center text-[10px] font-medium z-10 shrink-0" data-purpose="bottom-nav">
+<a class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 transition" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Browse</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-blue-400 font-semibold relative transition" href="#">
+<div class="relative">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="absolute -top-1.5 -right-2 px-1 py-0.2 bg-blue-500 text-[9px] text-white font-bold rounded-full border-2 border-[#0a0f16]">1</span>
+</div>
+<span>My Schedule</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 transition" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Saved Plans</span>
+</a>
+</nav>
+<!-- END: MobileNavigationBar -->
+<!-- iOS Home Indicator -->
+<div class="w-32 h-1 bg-slate-700/60 rounded-full mx-auto my-1.5 shrink-0 z-30"></div>
+</div>
+<!-- END: MobileDeviceContainer -->
+<!-- Interactivity Script for Slot Switching and dynamic input updating -->
+<script data-purpose="slot-interaction">
+    document.addEventListener('DOMContentLoaded', () => {
+      const labels = document.querySelectorAll('[role="radiogroup"] label');
+      const inputField = document.getElementById('plan-name-input');
+
+      labels.forEach((label) => {
+        label.addEventListener('click', () => {
+          // Reset styling for all options
+          labels.forEach((item) => {
+            item.className = 'relative flex items-center p-3.5 rounded-2xl cursor-pointer bg-[#1c2430]/70 hover:bg-[#202937] border border-white/[0.06] hover:border-slate-700 transition group';
+            const radioInner = item.querySelector('.shrink-0 div');
+            const radioOuter = item.querySelector('.shrink-0');
+            if (radioInner) radioInner.className = 'w-2.5 h-2.5 bg-transparent rounded-full';
+            if (radioOuter) radioOuter.className = 'w-5 h-5 rounded-full border border-slate-600 group-hover:border-slate-500 flex items-center justify-center mr-3.5 shrink-0 transition';
+            const activeBadge = item.querySelector('.uppercase');
+            if (activeBadge) activeBadge.remove();
+          });
+
+          // Set active styling on clicked option
+          label.className = 'relative flex items-center p-3.5 rounded-2xl cursor-pointer bg-gradient-to-r from-blue-950/60 to-blue-900/30 border border-blue-500/80 shadow-[0_0_15px_rgba(37,99,235,0.18)] transition-all group';
+          const currentOuter = label.querySelector('.shrink-0');
+          const currentInner = label.querySelector('.shrink-0 div');
+          if (currentOuter) currentOuter.className = 'w-5 h-5 rounded-full border-2 border-blue-400 flex items-center justify-center mr-3.5 shrink-0 bg-blue-950/60';
+          if (currentInner) currentInner.className = 'w-2.5 h-2.5 bg-blue-400 rounded-full';
+
+          // Add Active badge
+          const headerRow = label.querySelector('.flex-1 > div');
+          if (headerRow && !headerRow.querySelector('.uppercase')) {
+            const badge = document.createElement('span');
+            badge.className = 'text-[10px] uppercase font-semibold text-blue-400 tracking-wider';
+            badge.textContent = 'Active';
+            headerRow.appendChild(badge);
+          }
+
+          // Update label input with corresponding slot title
+          const titleText = label.querySelector('.tracking-tight')?.textContent.trim();
+          if (titleText && inputField) {
+            inputField.value = titleText;
+          }
+        });
+      });
+    });
+  </script>
+</body></html>

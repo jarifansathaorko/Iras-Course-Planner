@@ -1,11 +1,14 @@
 package com.example.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -29,9 +32,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.BuildConfig
 import com.example.domain.ConflictResult
@@ -43,6 +50,14 @@ import com.example.ui.components.UpdateDataDialog
 import com.example.ui.screens.CourseCatalogScreen
 import com.example.ui.screens.SavedPlansScreen
 import com.example.ui.screens.SelectedCoursesScreen
+import com.example.ui.theme.StitchBackground
+import com.example.ui.theme.StitchOutline
+import com.example.ui.theme.StitchPrimary
+import com.example.ui.theme.StitchPrimaryContainer
+import com.example.ui.theme.StitchSurfaceLow
+import com.example.ui.theme.StitchTertiary
+import com.example.ui.theme.StitchTextMuted
+import com.example.ui.theme.StitchTextPrimary
 import com.example.ui.viewmodel.CourseViewModel
 import com.example.ui.viewmodel.UiMessage
 import kotlinx.coroutines.flow.collectLatest
@@ -93,13 +108,25 @@ fun CourseSelectApp(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        containerColor = StitchBackground,
         contentWindowInsets = WindowInsets.safeDrawing,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
+            val outlineColor = StitchOutline
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 6.dp,
-                modifier = Modifier.testTag("bottom_navigation_bar")
+                containerColor = StitchSurfaceLow,
+                tonalElevation = 0.dp,
+                modifier = Modifier
+                    .testTag("bottom_navigation_bar")
+                    .drawBehind {
+                        // Stitch subtle top border on navigation bar
+                        drawLine(
+                            color = outlineColor,
+                            start = Offset(0f, 0f),
+                            end = Offset(size.width, 0f),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
             ) {
                 // Tab 1: Browse Courses
                 NavigationBarItem(
@@ -116,12 +143,16 @@ fun CourseSelectApp(
                     label = {
                         Text(
                             text = "Browse",
-                            fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (selectedTab == 0) FontWeight.SemiBold else FontWeight.Normal,
+                            fontSize = 12.sp
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                        selectedIconColor = StitchPrimary,
+                        selectedTextColor = StitchPrimary,
+                        unselectedIconColor = StitchTextMuted,
+                        unselectedTextColor = StitchTextMuted,
+                        indicatorColor = StitchPrimaryContainer.copy(alpha = 0.22f)
                     )
                 )
 
@@ -135,10 +166,14 @@ fun CourseSelectApp(
                             BadgedBox(
                                 badge = {
                                     Badge(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                        containerColor = StitchTertiary,
+                                        contentColor = Color(0xFF003824)
                                     ) {
-                                        Text("${selectedCourses.size}")
+                                        Text(
+                                            text = "${selectedCourses.size}",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 10.sp
+                                        )
                                     }
                                 }
                             ) {
@@ -159,12 +194,16 @@ fun CourseSelectApp(
                     label = {
                         Text(
                             text = "My Schedule",
-                            fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (selectedTab == 1) FontWeight.SemiBold else FontWeight.Normal,
+                            fontSize = 12.sp
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                        selectedIconColor = StitchPrimary,
+                        selectedTextColor = StitchPrimary,
+                        unselectedIconColor = StitchTextMuted,
+                        unselectedTextColor = StitchTextMuted,
+                        indicatorColor = StitchPrimaryContainer.copy(alpha = 0.22f)
                     )
                 )
 
@@ -183,12 +222,16 @@ fun CourseSelectApp(
                     label = {
                         Text(
                             text = "Saved Plans",
-                            fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (selectedTab == 2) FontWeight.SemiBold else FontWeight.Normal,
+                            fontSize = 12.sp
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                        selectedIconColor = StitchPrimary,
+                        selectedTextColor = StitchPrimary,
+                        unselectedIconColor = StitchTextMuted,
+                        unselectedTextColor = StitchTextMuted,
+                        indicatorColor = StitchPrimaryContainer.copy(alpha = 0.22f)
                     )
                 )
             }
@@ -197,6 +240,7 @@ fun CourseSelectApp(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(StitchBackground)
                 .padding(innerPadding)
         ) {
             when (selectedTab) {

@@ -94,17 +94,42 @@ object GitHubUpdateManager {
                 readTimeout = 15000
             }
 
-            val responseCode = connection.responseCode
+            var responseCode = connection.responseCode
+            var json: JSONObject? = null
+
             if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                return@withContext UpdateCheckState.Error("No releases found for GitHub repo: $targetRepo (or repository is private)")
+                // Fallback: Check /releases to see if there are any releases (e.g. pre-releases or untagged as latest)
+                val fallbackUrl = URL("https://api.github.com/repos/$targetRepo/releases")
+                val fallbackConn = fallbackUrl.openConnection() as HttpURLConnection
+                fallbackConn.apply {
+                    requestMethod = "GET"
+                    setRequestProperty("Accept", "application/vnd.github.v3+json")
+                    setRequestProperty("User-Agent", "CoursePlanner-Android-App")
+                    connectTimeout = 10000
+                    readTimeout = 15000
+                }
+                if (fallbackConn.responseCode == HttpURLConnection.HTTP_OK) {
+                    val arrayText = fallbackConn.inputStream.bufferedReader().use { it.readText() }
+                    val array = org.json.JSONArray(arrayText)
+                    if (array.length() > 0) {
+                        json = array.getJSONObject(0)
+                        responseCode = HttpURLConnection.HTTP_OK
+                    }
+                }
             }
 
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                return@withContext UpdateCheckState.Error("GitHub API returned error code: $responseCode")
-            }
+            if (json == null) {
+                if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                    return@withContext UpdateCheckState.Error("No releases found for GitHub repo: $targetRepo (or repository is private)")
+                }
 
-            val responseText = connection.inputStream.bufferedReader().use { it.readText() }
-            val json = JSONObject(responseText)
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    return@withContext UpdateCheckState.Error("GitHub API returned error code: $responseCode")
+                }
+
+                val responseText = connection.inputStream.bufferedReader().use { it.readText() }
+                json = JSONObject(responseText)
+            }
 
             val tagName = json.optString("tag_name", "").trim()
             val releaseName = json.optString("name", tagName)

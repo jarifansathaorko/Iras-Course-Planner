@@ -1,0 +1,154 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+<title>Change Section - IRAS Course Planner</title>
+<!-- Tailwind CSS CDN with forms and container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#0B1118',
+            surface: {
+              DEFAULT: '#131C27',
+              muted: '#182332',
+              elevated: '#1D2A3B',
+              hover: '#223246'
+            },
+            accent: {
+              DEFAULT: '#3B82F6',
+              soft: 'rgba(59, 130, 246, 0.12)',
+              border: 'rgba(96, 165, 250, 0.35)'
+            },
+            success: {
+              DEFAULT: '#10B981',
+              soft: 'rgba(16, 185, 129, 0.12)',
+              text: '#34D399'
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'SF Pro Display', 'Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          boxShadow: {
+            modal: '0 -10px 40px -15px rgba(0, 0, 0, 0.7), 0 20px 25px -5px rgba(0, 0, 0, 0.5)',
+            card: '0 2px 8px rgba(0, 0, 0, 0.25)'
+          }
+        }
+      }
+    }
+  </script>
+<!-- Base Custom Styles -->
+<style data-purpose="base-styling">
+    /* Custom scrollbar suppression for modern clean aesthetic */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    /* Subtle touch feedback */
+    .touch-ripple {
+      transition: background-color 0.15s ease, transform 0.1s ease;
+    }
+    .touch-ripple:active {
+      transform: scale(0.99);
+    }
+  </style>
+</head>
+<body class="bg-canvas text-slate-100 font-sans antialiased min-h-screen flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden select-none">
+<!-- BEGIN: BlurredBackgroundContext -->
+<!-- Mimics the underlying schedule planner interface visible under modal overlay -->
+<div aria-hidden="true" class="fixed inset-0 z-0 flex flex-col justify-between pointer-events-none filter blur-[5px] brightness-[0.45] scale-[1.02]">
+<!-- Simulated iOS Status Bar -->
+<header class="w-full pt-3 px-7 flex justify-between items-center text-xs font-semibold text-slate-400">
+<span class="">7:18</span>
+<div class="flex items-center space-x-2">
+<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.22 19.58 10.57 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9z"></path></svg>
+<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm1 14h-2v-2h2v2zm0-4h-2V7h2v7z"></path></svg>
+<span class="w-5 h-2.5 rounded-sm border border-slate-400 inline-block"></span>
+</div>
+</header>
+<!-- Simulated Planner Page Header -->
+<div class="p-6">
+<div class="flex items-center gap-3 mb-5">
+<div class="w-10 h-10 rounded-full bg-blue-600/30 border border-blue-500/20 flex items-center justify-center text-blue-300 font-bold text-sm">
+          ED
+        </div>
+<div>
+<h1 class="text-sm font-semibold tracking-wide text-slate-200">Iras Course Planner</h1>
+<p class="text-xs text-slate-400">My Registered Schedule</p>
+</div>
+</div>
+<div class="flex justify-between items-center mb-3">
+<div>
+<h2 class="text-base font-bold text-white">Selected Courses</h2>
+<p class="text-xs text-blue-400">1 Courses • 3 Credits Selected</p>
+</div>
+<span class="text-xs text-red-400 font-medium">Clear All</span>
+</div>
+<!-- Dummy Course Card -->
+<div class="w-full h-32 rounded-2xl bg-[#141d27] border border-slate-800 p-4"></div>
+</div>
+<!-- Simulated Bottom Navigation Bar -->
+<footer class="w-full bg-[#111822]/90 border-t border-slate-800/80 p-3 pb-8 flex justify-around text-slate-500">
+<div class="flex flex-col items-center gap-1 text-[11px] font-medium">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">Browse</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[11px] font-medium text-blue-400">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">My Schedule</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[11px] font-medium">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="">Saved Plans</span>
+</div>
+</footer>
+</div>
+<!-- END: BlurredBackgroundContext -->
+<!-- BEGIN: ModalOverlayBackdrop -->
+<div aria-hidden="true" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+<!-- END: ModalOverlayBackdrop -->
+<!-- BEGIN: ChangeSectionBottomSheet -->
+<main aria-labelledby="modal-title" aria-modal="true" class="relative z-50 w-full max-w-lg bg-[#151c25] border-t sm:border border-slate-700/50 rounded-t-3xl sm:rounded-3xl shadow-modal max-h-[92vh] flex flex-col overflow-hidden text-slate-100 pb-safe transition-all" data-purpose="change-section-sheet" id="change-section-modal" role="dialog">
+<!-- Top Drag Handle for Mobile Sheet ergonomics -->
+<div class="w-full flex justify-center pt-2.5 pb-1 sm:hidden">
+<div aria-hidden="true" class="w-10 h-1 rounded-full bg-slate-600/70"></div>
+</div>
+<!-- BEGIN: ModalHeaderSection -->
+<header class="px-5 pt-3 pb-4 border-b border-slate-800/80 flex-shrink-0" data-purpose="modal-header"><div class="flex items-center justify-between"><h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2" id="modal-title">Change Section</h2><button aria-label="Close dialog" class="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer" type="button"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg></button></div><div class="mt-2.5"><div class="flex flex-wrap items-center gap-2 mb-1.5"><span class="text-[14px] font-semibold text-slate-200">CSE213: Object Oriented Programming</span><div class="flex items-center gap-1.5"><span class="px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-md">3.0 CREDITS</span><span class="px-2 py-0.5 text-[10px] font-medium text-slate-400 bg-slate-800/90 border border-slate-700/40 rounded-md">Theory + Lab</span></div></div><p class="text-xs leading-relaxed text-slate-400 font-normal">Select an available section below. Conflict detection checks each slot against your remaining registered schedule.</p></div></header>
+<!-- END: ModalHeaderSection -->
+<!-- BEGIN: SectionListContent -->
+<section aria-label="Available course sections" class="flex-1 overflow-y-auto px-5 py-4 space-y-3 no-scrollbar" data-purpose="section-cards-container"><!-- Section 2 Card --><article class="touch-ripple group relative rounded-2xl p-3.5 bg-[#17222F] border border-slate-700/50 hover:border-slate-700 hover:bg-[#1B2736] transition-all cursor-pointer" data-purpose="section-card-available"><div class="flex items-start justify-between gap-3"><div class="flex items-start gap-3"><div class="flex-shrink-0 w-14 h-9 rounded-xl bg-slate-800/90 border border-slate-700/60 flex items-center justify-center font-bold text-xs text-slate-200 tracking-wide shadow-sm">Sec 02</div><div class="space-y-1"><div class="flex items-center gap-1.5"><span class="text-sm font-semibold text-white tracking-tight">Tue, Sat 11:20 AM – 12:50 PM</span></div><p class="text-xs text-slate-400 font-normal">Faculty: <span class="text-slate-300 font-medium">MR Subrata Kumar Dey</span> • <span class="text-slate-400">Room 402</span></p><div class="flex flex-wrap items-center gap-2 pt-0.5"><span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Available • No Conflict</span><span class="text-[11px] font-medium text-slate-400">8 seats left</span></div></div></div><button aria-label="Switch to Section 2" class="flex-shrink-0 w-9 h-9 rounded-xl bg-slate-800/70 group-hover:bg-blue-600/20 border border-slate-700/60 group-hover:border-blue-500/40 flex items-center justify-center text-slate-400 group-hover:text-blue-400 transition-colors" title="Switch section" type="button"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button></div></article><!-- Section 3 Card --><article class="touch-ripple group relative rounded-2xl p-3.5 bg-[#17222F] border border-slate-700/50 hover:border-slate-700 hover:bg-[#1B2736] transition-all cursor-pointer" data-purpose="section-card-available"><div class="flex items-start justify-between gap-3"><div class="flex items-start gap-3"><div class="flex-shrink-0 w-14 h-9 rounded-xl bg-slate-800/90 border border-slate-700/60 flex items-center justify-center font-bold text-xs text-slate-200 tracking-wide shadow-sm">Sec 03</div><div class="space-y-1"><div class="flex items-center gap-1.5"><span class="text-sm font-semibold text-white tracking-tight">Tue, Sat 1:00 PM – 2:30 PM</span></div><p class="text-xs text-slate-400 font-normal">Faculty: <span class="text-slate-300 font-medium">MR Subrata Kumar Dey</span> • <span class="text-slate-400">Room 301</span></p><div class="flex flex-wrap items-center gap-2 pt-0.5"><span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Available • No Conflict</span><span class="text-[11px] font-medium text-slate-400">9 seats left</span></div></div></div><button aria-label="Switch to Section 3" class="flex-shrink-0 w-9 h-9 rounded-xl bg-slate-800/70 group-hover:bg-blue-600/20 border border-slate-700/60 group-hover:border-blue-500/40 flex items-center justify-center text-slate-400 group-hover:text-blue-400 transition-colors" title="Switch section" type="button"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button></div></article><!-- Section 4 Card --><article class="touch-ripple group relative rounded-2xl p-3.5 bg-[#17222F] border border-slate-700/50 hover:border-slate-700 hover:bg-[#1B2736] transition-all cursor-pointer" data-purpose="section-card-available"><div class="flex items-start justify-between gap-3"><div class="flex items-start gap-3"><div class="flex-shrink-0 w-14 h-9 rounded-xl bg-slate-800/90 border border-slate-700/60 flex items-center justify-center font-bold text-xs text-slate-200 tracking-wide shadow-sm">Sec 04</div><div class="space-y-1"><div class="flex items-center gap-1.5"><span class="text-sm font-semibold text-white tracking-tight">Tue, Sat 4:20 PM – 5:50 PM</span></div><p class="text-xs text-slate-400 font-normal">Faculty: <span class="text-slate-300 font-medium">MR Subrata Kumar Dey</span> • <span class="text-slate-400">Room 402</span></p><div class="flex flex-wrap items-center gap-2 pt-0.5"><span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Available • No Conflict</span><span class="text-[11px] font-medium text-amber-400/90">4 seats left (Fast Filling)</span></div></div></div><button aria-label="Switch to Section 4" class="flex-shrink-0 w-9 h-9 rounded-xl bg-slate-800/70 group-hover:bg-blue-600/20 border border-slate-700/60 group-hover:border-blue-500/40 flex items-center justify-center text-slate-400 group-hover:text-blue-400 transition-colors" title="Switch section" type="button"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button></div></article><!-- Section 5: Current Selected Section --><article class="relative rounded-2xl p-3.5 bg-gradient-to-r from-blue-950/40 via-[#172338] to-[#172338] border-2 border-blue-500/60 shadow-lg shadow-blue-950/30 ring-1 ring-blue-500/20" data-purpose="section-card-active"><div class="flex items-start justify-between gap-3"><div class="flex items-start gap-3"><div class="flex-shrink-0 w-14 h-9 rounded-xl bg-blue-600 border border-blue-400/40 flex items-center justify-center font-bold text-xs text-white tracking-wide shadow-md shadow-blue-600/30">Sec 05</div><div class="space-y-1"><div class="flex items-center gap-1.5"><span class="text-sm font-semibold text-white tracking-tight">Mon, Wed 8:00 AM – 9:30 AM</span></div><p class="text-xs text-slate-300 font-normal">Faculty: <span class="text-blue-200 font-medium">MR Md. Aquib Azmain</span> • <span class="text-slate-400">Room 402</span></p><div class="flex flex-wrap items-center gap-2 pt-0.5"><span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-blue-300 bg-blue-500/20 px-2 py-0.5 rounded-md border border-blue-400/30"><svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>Current Active Section</span></div></div></div><div class="flex-shrink-0 flex items-center pr-1 pt-1"><span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span></span></div></div></article></section>
+<!-- END: SectionListContent -->
+<!-- BEGIN: ModalActionFooter -->
+<footer class="p-4 px-5 bg-[#101721] border-t border-slate-800/90 flex items-center gap-3 flex-shrink-0" data-purpose="modal-footer-actions"><!-- Cancel / Dismiss Button --><button class="flex-1 h-10 py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 active:scale-[0.98] transition-all text-center flex items-center justify-center cursor-pointer" type="button">Cancel</button><!-- Apply / Confirm Button --><button class="flex-1 h-10 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 border border-blue-400/30 shadow-lg shadow-blue-600/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer" type="button"><span class="">Apply Selection</span><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg></button></footer>
+<!-- END: ModalActionFooter -->
+<!-- Home Indicator bar (iOS style bottom safe area spacer) -->
+<div class="w-full flex justify-center pb-2 pt-1 bg-[#101721]">
+<div class="w-32 h-1 rounded-full bg-slate-700/60"></div>
+</div>
+</main>
+<!-- END: ChangeSectionBottomSheet -->
+<!-- Script for Interactive Feedback -->
+<script data-purpose="interactive-selection">
+    document.addEventListener('DOMContentLoaded', () => {
+      const cards = document.querySelectorAll('[data-purpose="section-card-available"]');
+      
+      cards.forEach(card => {
+        card.addEventListener('click', () => {
+          // Subtle interactive feedback on section select
+          cards.forEach(c => c.classList.remove('ring-1', 'ring-blue-500/40'));
+          card.classList.add('ring-1', 'ring-blue-500/40');
+        });
+      });
+    });
+  </script>
+
+
+</body></html>

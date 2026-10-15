@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Restore
@@ -35,12 +37,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,6 +55,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -65,7 +71,21 @@ import com.example.data.entity.PlanMetaEntity
 import com.example.domain.ScheduleHelper
 import com.example.ui.components.WeeklyTimetableGrid
 import com.example.ui.theme.ConflictRed
-import com.example.ui.theme.TertiaryGold
+import com.example.ui.theme.ConflictRedBg
+import com.example.ui.theme.ConflictRedBorder
+import com.example.ui.theme.StitchBackground
+import com.example.ui.theme.StitchOutline
+import com.example.ui.theme.StitchPrimary
+import com.example.ui.theme.StitchPrimaryContainer
+import com.example.ui.theme.StitchSecondary
+import com.example.ui.theme.StitchSecondaryContainer
+import com.example.ui.theme.StitchSurfaceContainer
+import com.example.ui.theme.StitchSurfaceHigh
+import com.example.ui.theme.StitchSurfaceLow
+import com.example.ui.theme.StitchTertiary
+import com.example.ui.theme.StitchTextMuted
+import com.example.ui.theme.StitchTextPrimary
+import com.example.ui.theme.StitchTextSecondary
 
 @Composable
 fun SavedPlansScreen(
@@ -103,375 +123,396 @@ fun SavedPlansScreen(
         plan4Courses.size
     )
 
-    Column(
+    val outlineColor = StitchOutline
+
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(StitchBackground)
     ) {
-        // --- Top Header & Plan Sub-Tabs ---
-        Surface(
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 2.dp,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                // App Logo & Branded Header
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_iras_logo),
-                        contentDescription = "Iras Course Planner Logo",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Column {
-                        Text(
-                            text = "Iras Course Planner",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            ),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Saved Semester Plans (Plan 1 - 4)",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+        Column(modifier = Modifier.fillMaxSize()) {
+            // --- Top App Bar (Matching Stitch 04_saved-semester-plans.html) ---
+            Surface(
+                color = StitchSurfaceLow,
+                tonalElevation = 0.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            color = outlineColor,
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = 1.dp.toPx()
                         )
                     }
-                }
-
-                // Smaller Sub-Tabs: Plan 1, Plan 2, Plan 3, Plan 4
-                TabRow(
-                    selectedTabIndex = activePlanNumber - 1,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.primary,
+            ) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    for (i in 1..4) {
-                        val isSelected = activePlanNumber == i
-                        val count = planCounts[i - 1]
-                        Tab(
-                            selected = isSelected,
-                            onClick = { onSelectPlanTab(i) },
-                            modifier = Modifier.testTag("plan_subtab_$i"),
-                            text = {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.padding(vertical = 4.dp)
+                    // Title Bar
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(StitchSurfaceContainer)
+                                .border(1.5.dp, StitchPrimaryContainer.copy(alpha = 0.6f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_iras_logo),
+                                contentDescription = "IRAS Logo",
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(CircleShape)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "Saved Semester Plans",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 17.sp,
+                                    letterSpacing = (-0.01).sp
+                                ),
+                                color = StitchTextPrimary
+                            )
+                            Text(
+                                text = "Switch Between 4 Planned Routines",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                color = StitchTextSecondary
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // 4 Plan Tabs Strip
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(StitchSurfaceContainer)
+                            .border(1.dp, StitchOutline, RoundedCornerShape(10.dp))
+                            .padding(3.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        for (p in 1..4) {
+                            val isSelected = activePlanNumber == p
+                            val count = planCounts[p - 1]
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(if (isSelected) StitchPrimaryContainer else Color.Transparent)
+                                    .clickable { onSelectPlanTab(p) }
+                                    .padding(vertical = 7.dp)
+                                    .testTag("plan_tab_$p"),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     Text(
-                                        text = "Plan $i",
-                                        style = MaterialTheme.typography.titleSmall.copy(
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                                        )
+                                        text = "Plan $p",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            fontSize = 11.5.sp
+                                        ),
+                                        color = if (isSelected) Color.White else StitchTextSecondary
                                     )
-                                    Text(
-                                        text = if (count > 0) "$count courses" else "Empty",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = if (count > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                                        fontSize = 10.sp
-                                    )
+                                    if (count > 0) {
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .background(if (isSelected) Color.White.copy(alpha = 0.25f) else StitchSurfaceHigh)
+                                                .padding(horizontal = 5.dp, vertical = 1.dp)
+                                        ) {
+                                            Text(
+                                                text = "$count",
+                                                style = MaterialTheme.typography.labelSmall.copy(
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 9.5.sp
+                                                ),
+                                                color = if (isSelected) Color.White else StitchTertiary
+                                            )
+                                        }
+                                    }
                                 }
                             }
-                        )
-                    }
-                }
-            }
-        }
-
-        // --- Active Plan Card Banner ---
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = planName,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "${currentPlanCourses.size} Courses  •  $totalCredits Credits",
-                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
-                    // Share Button (High Resolution Image Export)
-                    Button(
-                        onClick = { onSharePlan(context, activePlanNumber) },
-                        enabled = currentPlanCourses.isNotEmpty(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = TertiaryGold,
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.testTag("share_plan_btn")
-                    ) {
-                        Icon(imageVector = Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Share Image", fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Action buttons: Load to Current Selection & Clear Plan
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = { onLoadPlanIntoSelection(activePlanNumber) },
-                        enabled = currentPlanCourses.isNotEmpty(),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("load_plan_button")
-                    ) {
-                        Icon(imageVector = Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Load to Selection")
-                    }
-
-                    if (currentPlanCourses.isNotEmpty()) {
-                        TextButton(
-                            onClick = { onClearPlan(activePlanNumber) },
-                            modifier = Modifier.testTag("clear_plan_button")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = null,
-                                tint = ConflictRed,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Clear", color = ConflictRed)
                         }
                     }
                 }
             }
-        }
 
-        // --- Sub-View Switcher: Timetable vs List ---
-        if (currentPlanCourses.isNotEmpty()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = if (viewModeTab == 0) "Weekly Timetable View" else "Course Details List",
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    FilledTonalButton(
-                        onClick = { viewModeTab = 0 },
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.GridView, contentDescription = null, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Grid", fontSize = 12.sp)
-                    }
-
-                    FilledTonalButton(
-                        onClick = { viewModeTab = 1 },
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
-                    ) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.List, contentDescription = null, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("List", fontSize = 12.sp)
-                    }
-                }
-            }
-        }
-
-        // --- Content Area ---
-        if (currentPlanCourses.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+            // --- Active Plan Overview Card & Body ---
+            if (currentPlanCourses.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(72.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.CalendarMonth,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.outline,
-                            modifier = Modifier.size(36.dp)
+                            tint = StitchTextMuted,
+                            modifier = Modifier.size(56.dp)
+                        )
+                        Text(
+                            text = "Plan $activePlanNumber is Empty",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = StitchTextPrimary
+                        )
+                        Text(
+                            text = "You haven't saved any schedule into Plan $activePlanNumber yet. Go to 'My Schedule' and tap 'Save as Plan' to store a routine here.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = StitchTextSecondary,
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
-
-                    Text(
-                        text = "Plan $activePlanNumber is Empty",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Text(
-                        text = "To save courses into Plan $activePlanNumber:\n1. Select your preferred courses in 'Browse Courses'\n2. Go to 'My Schedule' and tap 'Confirm Schedule for Plans'\n3. Pick Plan $activePlanNumber to save!",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
-                }
-            }
-        } else {
-            if (viewModeTab == 0) {
-                // Interactive Weekly Timetable Grid
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 6.dp)
-                ) {
-                    WeeklyTimetableGrid(
-                        courses = currentPlanCourses,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.height(84.dp))
                 }
             } else {
-                // Detailed Course List
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                // Header Card for Active Plan
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
-                    items(currentPlanCourses, key = { it.id }) { course ->
-                        PlanCourseDetailCard(course = course)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun PlanCourseDetailCard(course: CourseEntity) {
-    val parsedTime = ScheduleHelper.parse(course.timeSlot)
-
-    Card(
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = course.courseCode,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    Card(
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = StitchSurfaceContainer),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, StitchOutline),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = "Sec ${course.section}",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = planName,
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp,
+                                            letterSpacing = (-0.01).sp
+                                        ),
+                                        color = StitchTextPrimary
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "${currentPlanCourses.size} Courses • $totalCredits Credits",
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.5.sp),
+                                        color = StitchTextSecondary
+                                    )
+                                }
+
+                                // View switcher icon toggle
+                                Row(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(StitchSurfaceLow)
+                                        .border(1.dp, StitchOutline, RoundedCornerShape(8.dp))
+                                        .padding(2.dp)
+                                ) {
+                                    IconButton(
+                                        onClick = { viewModeTab = 0 },
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(if (viewModeTab == 0) StitchPrimaryContainer else Color.Transparent)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.GridView,
+                                            contentDescription = "Timetable",
+                                            tint = if (viewModeTab == 0) Color.White else StitchTextSecondary,
+                                            modifier = Modifier.size(15.dp)
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = { viewModeTab = 1 },
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(if (viewModeTab == 1) StitchPrimaryContainer else Color.Transparent)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.List,
+                                            contentDescription = "List",
+                                            tint = if (viewModeTab == 1) Color.White else StitchTextSecondary,
+                                            modifier = Modifier.size(15.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            // Plan Action Buttons
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Button(
+                                    onClick = { onLoadPlanIntoSelection(activePlanNumber) },
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = StitchPrimaryContainer,
+                                        contentColor = Color.White
+                                    ),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .testTag("btn_load_plan")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Restore,
+                                        contentDescription = "Load",
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Load Plan", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+
+                                OutlinedButton(
+                                    onClick = { onSharePlan(context, activePlanNumber) },
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        containerColor = StitchSurfaceLow,
+                                        contentColor = StitchPrimary
+                                    ),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, StitchOutline),
+                                    modifier = Modifier.testTag("btn_share_plan")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Share,
+                                        contentDescription = "Share",
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Share", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                }
+
+                                IconButton(
+                                    onClick = { onClearPlan(activePlanNumber) },
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(ConflictRedBg)
+                                        .border(1.dp, ConflictRedBorder, RoundedCornerShape(8.dp))
+                                        .testTag("btn_clear_plan")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.DeleteOutline,
+                                        contentDescription = "Clear Plan",
+                                        tint = ConflictRed,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
-                Text(
-                    text = "${course.credit} Cr",
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+                // Plan Content: Timetable or List
+                Box(modifier = Modifier.weight(1f)) {
+                    if (viewModeTab == 0) {
+                        WeeklyTimetableGrid(
+                            courses = currentPlanCourses,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(
+                                items = currentPlanCourses,
+                                key = { it.id }
+                            ) { course ->
+                                val parsedTime = remember(course.timeSlot) { ScheduleHelper.parse(course.timeSlot) }
+                                Card(
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(containerColor = StitchSurfaceContainer),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, StitchOutline),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(12.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Text(
+                                                    text = course.courseCode,
+                                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 15.sp),
+                                                    color = StitchTextPrimary
+                                                )
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Box(
+                                                    modifier = Modifier
+                                                        .clip(RoundedCornerShape(6.dp))
+                                                        .background(StitchSurfaceHigh)
+                                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                                ) {
+                                                    Text(
+                                                        text = "SEC ${course.section}",
+                                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontSize = 10.sp),
+                                                        color = StitchTextPrimary
+                                                    )
+                                                }
+                                            }
+                                            Spacer(modifier = Modifier.height(2.dp))
+                                            Text(
+                                                text = parsedTime.formattedTime,
+                                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                                color = StitchTextSecondary
+                                            )
+                                            if (course.faculty.isNotBlank()) {
+                                                Text(
+                                                    text = course.faculty,
+                                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
+                                                    color = StitchTextMuted
+                                                )
+                                            }
+                                        }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = course.title,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Schedule,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(15.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = parsedTime.formattedTime,
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Faculty: ${course.faculty}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
-                val seatsLeft = (course.capacity - course.enrolled).coerceAtLeast(0)
-                Text(
-                    text = "${course.enrolled}/${course.capacity} Enrolled ($seatsLeft open)",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(StitchSecondaryContainer.copy(alpha = 0.25f))
+                                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                        ) {
+                                            Text(
+                                                text = "${course.credit} Cr",
+                                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontSize = 11.sp),
+                                                color = StitchSecondary
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

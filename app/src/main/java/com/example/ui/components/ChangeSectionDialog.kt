@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
@@ -32,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,10 +44,22 @@ import com.example.domain.ConflictResult
 import com.example.domain.ScheduleHelper
 import com.example.ui.theme.ConflictRed
 import com.example.ui.theme.ConflictRedBg
-import com.example.ui.theme.SelectedBlueBg
-import com.example.ui.theme.SelectedBlueBorder
+import com.example.ui.theme.ConflictRedBorder
+import com.example.ui.theme.StitchOutline
+import com.example.ui.theme.StitchPrimary
+import com.example.ui.theme.StitchPrimaryContainer
+import com.example.ui.theme.StitchSecondary
+import com.example.ui.theme.StitchSecondaryContainer
+import com.example.ui.theme.StitchSurfaceContainer
+import com.example.ui.theme.StitchSurfaceHigh
+import com.example.ui.theme.StitchSurfaceLow
+import com.example.ui.theme.StitchTertiary
+import com.example.ui.theme.StitchTextMuted
+import com.example.ui.theme.StitchTextPrimary
+import com.example.ui.theme.StitchTextSecondary
 import com.example.ui.theme.SuccessGreen
 import com.example.ui.theme.SuccessGreenBg
+import com.example.ui.theme.SuccessGreenBorder
 
 @Composable
 fun ChangeSectionDialog(
@@ -59,6 +74,7 @@ fun ChangeSectionDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.testTag("change_section_dialog"),
+        containerColor = StitchSurfaceLow,
         title = {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -68,25 +84,34 @@ fun ChangeSectionDialog(
                 Column {
                     Text(
                         text = "Change Section",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                            letterSpacing = (-0.01).sp
+                        ),
+                        color = StitchTextPrimary
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "${currentCourse.courseCode}: ${currentCourse.title}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "${currentCourse.courseCode} • Currently: Sec ${currentCourse.section}",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.5.sp),
+                        color = StitchPrimary
                     )
                 }
-                IconButton(onClick = onDismiss) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                IconButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.size(28.dp)
+                ) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close", tint = StitchTextSecondary)
                 }
             }
         },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Select an available section below. Conflict detection checks each slot against your remaining schedule.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = "Select an alternative section below. Time slots are verified in real-time against your other enrolled courses.",
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                    color = StitchTextSecondary,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
@@ -103,17 +128,17 @@ fun ChangeSectionDialog(
                         val parsed = ScheduleHelper.parse(sectionCandidate.timeSlot)
 
                         val backgroundColor = when {
-                            isCurrent -> MaterialTheme.colorScheme.primaryContainer
-                            isFull -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            conflict != null -> MaterialTheme.colorScheme.errorContainer
-                            else -> MaterialTheme.colorScheme.surface
+                            isCurrent -> StitchPrimaryContainer.copy(alpha = 0.15f)
+                            isFull -> StitchSurfaceContainer.copy(alpha = 0.6f)
+                            conflict != null -> ConflictRedBg
+                            else -> StitchSurfaceContainer
                         }
 
                         val borderColor = when {
-                            isCurrent -> MaterialTheme.colorScheme.primary
-                            isFull -> MaterialTheme.colorScheme.outlineVariant
-                            conflict != null -> ConflictRed.copy(alpha = 0.4f)
-                            else -> MaterialTheme.colorScheme.outlineVariant
+                            isCurrent -> StitchPrimaryContainer
+                            isFull -> StitchOutline.copy(alpha = 0.4f)
+                            conflict != null -> ConflictRedBorder
+                            else -> StitchOutline
                         }
 
                         Surface(
@@ -133,38 +158,38 @@ fun ChangeSectionDialog(
                                     .padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                // Section Chip
+                                // Section Badge
                                 Box(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer)
-                                        .padding(horizontal = 8.dp, vertical = 6.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(if (isCurrent) StitchPrimaryContainer else StitchSurfaceHigh)
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
                                     Text(
                                         text = "Sec ${sectionCandidate.section}",
-                                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = if (isCurrent) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 11.sp),
+                                        color = if (isCurrent) Color.White else StitchTextPrimary
                                     )
                                 }
 
-                                Spacer(modifier = Modifier.width(12.dp))
+                                Spacer(modifier = Modifier.width(10.dp))
 
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = parsed.formattedTime,
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
+                                        color = StitchTextPrimary
                                     )
                                     Text(
-                                        text = sectionCandidate.faculty,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        text = if (sectionCandidate.faculty.isNotBlank()) sectionCandidate.faculty else "TBA",
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                        color = StitchTextSecondary
                                     )
 
                                     if (isFull && !isCurrent) {
                                         Text(
                                             text = "Section Full (${sectionCandidate.enrolled}/${sectionCandidate.capacity})",
-                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 10.5.sp),
                                             color = ConflictRed
                                         )
                                     } else if (conflict != null) {
@@ -176,24 +201,24 @@ fun ChangeSectionDialog(
                                                 imageVector = Icons.Default.Warning,
                                                 contentDescription = null,
                                                 tint = ConflictRed,
-                                                modifier = Modifier.width(14.dp)
+                                                modifier = Modifier.size(12.dp)
                                             )
-                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Spacer(modifier = Modifier.width(3.dp))
                                             val conflictMsg = when (conflict) {
                                                 is ConflictResult.TimeOverlap -> "Clashes with ${conflict.existing.courseCode}"
                                                 is ConflictResult.SameCourse -> "Already selected"
                                             }
                                             Text(
                                                 text = conflictMsg,
-                                                style = MaterialTheme.typography.labelSmall,
+                                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
                                                 color = ConflictRed
                                             )
                                         }
                                     } else if (!isCurrent) {
                                         Text(
                                             text = "Available • No Conflict",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = SuccessGreen
+                                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
+                                            color = StitchTertiary
                                         )
                                     }
                                 }
@@ -202,26 +227,28 @@ fun ChangeSectionDialog(
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(6.dp))
-                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                                            .background(StitchPrimaryContainer.copy(alpha = 0.2f))
                                             .padding(horizontal = 6.dp, vertical = 2.dp)
                                     ) {
                                         Text(
                                             text = "Current",
-                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                            color = MaterialTheme.colorScheme.primary
+                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 10.sp),
+                                            color = StitchPrimary
                                         )
                                     }
                                 } else if (isFull) {
                                     Icon(
                                         imageVector = Icons.Default.Block,
                                         contentDescription = "Full",
-                                        tint = MaterialTheme.colorScheme.outline
+                                        tint = StitchTextMuted,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                 } else {
                                     Icon(
                                         imageVector = Icons.Default.SwapHoriz,
                                         contentDescription = "Switch",
-                                        tint = if (conflict != null) ConflictRed else MaterialTheme.colorScheme.primary
+                                        tint = if (conflict != null) ConflictRed else StitchPrimary,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                 }
                             }
@@ -233,7 +260,7 @@ fun ChangeSectionDialog(
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", color = StitchTextSecondary)
             }
         }
     )
