@@ -187,18 +187,28 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
         val prefs = getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
         
         firestoreListener?.remove()
-        firestoreListener = Firebase.firestore.collection("config").document("latest_data")
-            .addSnapshotListener { snapshot, e ->
-                if (e != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
-                
-                val cloudVersion = snapshot.getLong("version")?.toInt() ?: 0
-                val localVersion = prefs.getInt("local_csv_version", 0)
-                val csvUrl = snapshot.getString("csvUrl")?.trim()
-                
-                if (cloudVersion > localVersion && !csvUrl.isNullOrBlank()) {
-                    triggerAutomaticDatabaseUpdate(cloudVersion, csvUrl)
+        try {
+            firestoreListener = Firebase.firestore.collection("config").document("latest_data")
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        // Prevent continuous permission denied retry loops if Firestore security rules block anonymous reads
+                        firestoreListener?.remove()
+                        firestoreListener = null
+                        return@addSnapshotListener
+                    }
+                    if (snapshot == null || !snapshot.exists()) return@addSnapshotListener
+                    
+                    val cloudVersion = snapshot.getLong("version")?.toInt() ?: 0
+                    val localVersion = prefs.getInt("local_csv_version", 0)
+                    val csvUrl = snapshot.getString("csvUrl")?.trim()
+                    
+                    if (cloudVersion > localVersion && !csvUrl.isNullOrBlank()) {
+                        triggerAutomaticDatabaseUpdate(cloudVersion, csvUrl)
+                    }
                 }
-            }
+        } catch (_: Exception) {
+            firestoreListener = null
+        }
     }
 
     override fun onCleared() {

@@ -54,11 +54,7 @@ abstract class AppDatabase : RoomDatabase() {
         ) : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                INSTANCE?.let { database ->
-                    scope.launch(Dispatchers.IO) {
-                        populateDatabase(database)
-                    }
-                }
+                // Initial catalog population is handled safely and deterministically by CourseRepository.ensureDataInitialized()
             }
         }
 

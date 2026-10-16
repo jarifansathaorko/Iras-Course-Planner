@@ -302,7 +302,7 @@ fun WeeklyTimetableGrid(
                                             }
 
                                             Text(
-                                                text = if (course.room.isNotBlank()) "R: ${course.room}" else course.faculty,
+                                                text = if (course.faculty.isNotBlank()) course.faculty else "TBA",
                                                 style = MaterialTheme.typography.labelSmall.copy(
                                                     fontSize = 9.sp,
                                                     fontWeight = FontWeight.Normal
@@ -352,9 +352,7 @@ fun WeeklyTimetableGrid(
                     Text(text = course.title, style = MaterialTheme.typography.bodyMedium, color = StitchTextSecondary)
                     Text(text = "Instructor: ${if (course.faculty.isNotBlank()) course.faculty else "TBA"}", style = MaterialTheme.typography.bodySmall, color = StitchTextPrimary)
                     Text(text = "Time: ${parsedTime.formattedTime}", style = MaterialTheme.typography.bodySmall, color = StitchTextPrimary)
-                    if (course.room.isNotBlank()) {
-                        Text(text = "Room: ${course.room}", style = MaterialTheme.typography.bodySmall, color = StitchTextPrimary)
-                    }
+                    Text(text = "Enrolled: ${course.enrolled}/${course.capacity}", style = MaterialTheme.typography.bodySmall, color = StitchTextPrimary)
                     Text(text = "Credits: ${course.credit} Cr", style = MaterialTheme.typography.bodySmall, color = StitchSecondary)
                 }
             },
